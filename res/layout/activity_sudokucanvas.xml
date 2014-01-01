@@ -12,6 +12,6 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="42dp"
-        android:text="TextView" />
+        android:text="Let's play" />
 
 </RelativeLayout>
