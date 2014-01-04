@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="42dp"
-        android:text="Let's play" />
+        android:layout_marginTop="16dp"
+        android:text="Let&apos;s play" />
 
 </RelativeLayout>

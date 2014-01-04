@@ -44,25 +44,25 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener {
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
 		display.getSize(size);
-		layoutParams.height = size.x - 50;
-		layoutParams.width = size.x - 50;
+		layoutParams.height = size.x;
+		layoutParams.width = size.x;
 
 		// Add the canvas to the activity view
 		ViewGroup v = (ViewGroup) getWindow().getDecorView().findViewById(
 				R.id.RelativeLayout1);
 		v.addView(sudokuCanvas, layoutParams);
-		
+
 		// Initialize the sudoku board
 		initializeSudokuBoard();
-		
+
 		sudokuCanvas.setOnTouchListener(this);
 	}
-	
+
 	// Get data from Duy to initialize the board
 	private void initializeSudokuBoard() {
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 9; j++) {
-				sudokuInput[i][j] = j+1;
+				sudokuInput[i][j] = j + 1;
 			}
 		}
 	}
@@ -70,7 +70,8 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener {
 	// View class to display sudoku
 	public class SudokuCanvasView extends View {
 
-		private Paint normalGridPaint, thickGridPaint, numberPaint, highlightPaint;
+		private Paint normalGridPaint, thickGridPaint, numberPaint,
+				highlightPaint;
 
 		public SudokuCanvasView(Context context) {
 			super(context);
@@ -83,37 +84,45 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener {
 			thickGridPaint.setStyle(Paint.Style.STROKE);
 			thickGridPaint.setColor(Color.BLUE);
 			thickGridPaint.setStrokeWidth(6);
-			
+
 			numberPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 			numberPaint.setStyle(Paint.Style.FILL);
 			numberPaint.setColor(Color.RED);
 			numberPaint.setTextSize(50);
 			numberPaint.setStrokeWidth(1);
-			
+
 			highlightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 			highlightPaint.setStyle(Paint.Style.FILL);
 			highlightPaint.setColor(Color.YELLOW);
-			
+
 			fingerX = fingerY = -1;
 		}
 
 		@Override
 		protected void onDraw(Canvas canvas) {
 			super.onDraw(canvas);
-			
+
 			float X, Y;
-			
+
 			canvas.drawColor(Color.CYAN);
-			
+
 			// Highlight current square user touched
-			for (int i = 0; i< 9; i++){
-				for (int j = 0; j <9; j++){
-					if (fingerX < (float)canvas.getWidth()/9*(i+1) && fingerX > (float)canvas.getWidth()/9*i && fingerY > (float)canvas.getHeight()/9*j && fingerY < (float)canvas.getHeight()/9*(j+1)){
-						canvas.drawRect((float)canvas.getWidth()/9*i, (float)canvas.getHeight()/9*j, (float)canvas.getWidth()/9*(i+1), (float)canvas.getHeight()/9*(j+1), highlightPaint);
+			for (int i = 0; i < 9; i++) {
+				for (int j = 0; j < 9; j++) {
+					if (fingerX < (float) canvas.getWidth() / 9 * (i + 1)
+							&& fingerX > (float) canvas.getWidth() / 9 * i
+							&& fingerY > (float) canvas.getHeight() / 9 * j
+							&& fingerY < (float) canvas.getHeight() / 9
+									* (j + 1)) {
+						canvas.drawRect((float) canvas.getWidth() / 9 * i,
+								(float) canvas.getHeight() / 9 * j,
+								(float) canvas.getWidth() / 9 * (i + 1),
+								(float) canvas.getHeight() / 9 * (j + 1),
+								highlightPaint);
 					}
 				}
 			}
-						
+
 			// Draw vertical grids
 			for (int i = 0; i < 10; i++) {
 				if (i % 3 == 0) {
@@ -139,22 +148,23 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener {
 							normalGridPaint);
 				}
 			}
-						
+
 			// Draw numbers to sudoku
-			for (int i = 0; i< 9; i++){
-				X = ((float)canvas.getWidth()/9*i + (float)canvas.getWidth()/9*(i+1))/2;
-				for (int j = 0; j <9; j++){
-					Y = ((float)canvas.getHeight()/9*j + (float)canvas.getHeight()/9*(j+1))/2;
-					// Need to reposition the coordinates to draw the number to make it centralized
-					canvas.drawText(String.valueOf(sudokuInput[i][j]), X-15, Y+15, numberPaint);
+			for (int i = 0; i < 9; i++) {
+				X = ((float) canvas.getWidth() / 9 * i + (float) canvas
+						.getWidth() / 9 * (i + 1)) / 2;
+				for (int j = 0; j < 9; j++) {
+					Y = ((float) canvas.getHeight() / 9 * j + (float) canvas
+							.getHeight() / 9 * (j + 1)) / 2;
+					// Need to reposition the coordinates to draw the number to
+					// make it centralized
+					canvas.drawText(String.valueOf(sudokuInput[i][j]), X - 15,
+							Y + 15, numberPaint);
 				}
 			}
-			
-			
-			
+
 			invalidate();
 		}
-
 	}
 
 	@Override
@@ -167,15 +177,13 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener {
 			fingerY = event.getY();
 			break;
 		case MotionEvent.ACTION_UP:
-			
-			
+
 			break;
 		case MotionEvent.ACTION_MOVE:
-			
-			
+
 			break;
 		}
-		
+
 		return true;
 	}
 
