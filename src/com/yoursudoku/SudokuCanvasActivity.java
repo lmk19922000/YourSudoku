@@ -1,7 +1,10 @@
 package com.yoursudoku;
 
 import java.util.List;
+import java.util.Stack;
 import java.util.Vector;
+
+import com.yoursudoku.command.Command;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -25,22 +28,38 @@ import android.widget.RelativeLayout;
 public class SudokuCanvasActivity extends Activity implements OnTouchListener, OnClickListener {
 	SudokuBoard sudokuObject;
 	
+	Stack<Command> commandHistory;	// Support undo action
+	
 	Point size; // Size of the sudoku board
 	
 	SudokuCanvasView sudokuCanvas; // view to display sudoku
-	int[][] sudokuInput = new int[9][9]; // Contain information about the sudoku
+	int[][] sudokuInput; // Contain information about the sudoku
 	List<Pair<Integer, Integer>> fixedNumbers;
 	float fingerX, fingerY; // current position of user's finger
 	
 	Button btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9; // Button for input number
 
-	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_sudokucanvas);
+		
+		initializeVariables();
+		
+		addCanvasView();
+		
+		initializeCompnentView();
+	}
 
+	private void initializeCompnentView() {
+		btn1 = (Button)findViewById(R.id.button1);
+		
+		sudokuCanvas.setOnTouchListener(this);
+		btn1.setOnClickListener(this);
+	}
+
+	private void addCanvasView() {
 		sudokuCanvas = new SudokuCanvasView(this);
 
 		// Set the position of the canvas relative to the activity view
@@ -52,10 +71,6 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener, O
 		layoutParams.addRule(RelativeLayout.BELOW, R.id.textView1);
 		layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL, 1);
 
-		// Get size of the screen to decide size of the canvas
-		Display display = getWindowManager().getDefaultDisplay();
-		size = new Point();
-		display.getSize(size);
 		layoutParams.height = size.x;
 		layoutParams.width = size.x;
 
@@ -63,18 +78,12 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener, O
 		ViewGroup v = (ViewGroup) getWindow().getDecorView().findViewById(
 				R.id.RelativeLayout1);
 		v.addView(sudokuCanvas, layoutParams);
-
-		// Initialize the sudoku board
-		initializeSudokuBoard();
-		
-		btn1 = (Button)findViewById(R.id.button1);
-		
-		sudokuCanvas.setOnTouchListener(this);
-		btn1.setOnClickListener(this);
 	}
 
-	// Get data from Duy to initialize the board
-	private void initializeSudokuBoard() {
+	@SuppressLint("NewApi")
+	private void initializeVariables() {
+		sudokuInput = new int[9][9];
+				
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 9; j++) {
 				if ((i == 1 && j == 3) || (i == 1 && j == 6)){
@@ -92,6 +101,13 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener, O
 		fixedNumbers.add(new Pair<Integer, Integer>(5, 4));
 		
 		fingerX = fingerY = -1;
+		
+		commandHistory = new Stack<Command>();
+		
+		// Get size of the screen to decide size of the canvas
+		Display display = getWindowManager().getDefaultDisplay();
+		size = new Point();
+		display.getSize(size);
 	}
 
 	// View class to display sudoku
