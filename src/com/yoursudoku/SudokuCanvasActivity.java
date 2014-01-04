@@ -23,6 +23,8 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 
 public class SudokuCanvasActivity extends Activity implements OnTouchListener, OnClickListener {
+	SudokuBoard sudokuObject;
+	
 	Point size; // Size of the sudoku board
 	
 	SudokuCanvasView sudokuCanvas; // view to display sudoku
