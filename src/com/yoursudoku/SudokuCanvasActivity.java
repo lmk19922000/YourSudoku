@@ -1,8 +1,12 @@
 package com.yoursudoku;
 
+import java.util.List;
+import java.util.Vector;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -12,15 +16,21 @@ import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.View.OnTouchListener;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 
-public class SudokuCanvasActivity extends Activity implements OnTouchListener {
-
+public class SudokuCanvasActivity extends Activity implements OnTouchListener, OnClickListener {
+	Point size; // Size of the sudoku board
+	
 	SudokuCanvasView sudokuCanvas; // view to display sudoku
 	int[][] sudokuInput = new int[9][9]; // Contain information about the sudoku
+	List<Pair<Integer, Integer>> fixedNumbers;
 	float fingerX, fingerY; // current position of user's finger
+	
+	Button btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9; // Button for input number
 
 	@SuppressLint("NewApi")
 	@Override
@@ -42,7 +52,7 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener {
 
 		// Get size of the screen to decide size of the canvas
 		Display display = getWindowManager().getDefaultDisplay();
-		Point size = new Point();
+		size = new Point();
 		display.getSize(size);
 		layoutParams.height = size.x;
 		layoutParams.width = size.x;
@@ -54,24 +64,39 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener {
 
 		// Initialize the sudoku board
 		initializeSudokuBoard();
-
+		
+		btn1 = (Button)findViewById(R.id.button1);
+		
 		sudokuCanvas.setOnTouchListener(this);
+		btn1.setOnClickListener(this);
 	}
 
 	// Get data from Duy to initialize the board
 	private void initializeSudokuBoard() {
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 9; j++) {
+				if ((i == 1 && j == 3) || (i == 1 && j == 6)){
+					sudokuInput[i][j] = 0;
+					continue;
+				}
 				sudokuInput[i][j] = j + 1;
 			}
 		}
+
+		// Get the list of fixed input
+		fixedNumbers = new Vector<Pair<Integer, Integer>>();
+		fixedNumbers.add(new Pair<Integer, Integer>(2, 3));
+		fixedNumbers.add(new Pair<Integer, Integer>(3, 7));
+		fixedNumbers.add(new Pair<Integer, Integer>(5, 4));
+		
+		fingerX = fingerY = -1;
 	}
 
 	// View class to display sudoku
 	public class SudokuCanvasView extends View {
 
 		private Paint normalGridPaint, thickGridPaint, numberPaint,
-				highlightPaint;
+				fixedNumberPaint, highlightPaint;
 
 		public SudokuCanvasView(Context context) {
 			super(context);
@@ -88,14 +113,15 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener {
 			numberPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 			numberPaint.setStyle(Paint.Style.FILL);
 			numberPaint.setColor(Color.RED);
-			numberPaint.setTextSize(50);
-			numberPaint.setStrokeWidth(1);
+			numberPaint.setTextSize(70);
+
+			fixedNumberPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+			fixedNumberPaint.setStyle(Paint.Style.FILL);
+			fixedNumberPaint.setColor(Color.GRAY);
 
 			highlightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 			highlightPaint.setStyle(Paint.Style.FILL);
 			highlightPaint.setColor(Color.YELLOW);
-
-			fingerX = fingerY = -1;
 		}
 
 		@Override
@@ -105,6 +131,15 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener {
 			float X, Y;
 
 			canvas.drawColor(Color.CYAN);
+
+			// Draw squares containing fixed input
+			for (int i = 0; i < fixedNumbers.size(); i++) {
+				canvas.drawRect((float) canvas.getWidth() / 9 * fixedNumbers.get(i).getFirst(),
+						(float) canvas.getHeight() / 9 * fixedNumbers.get(i).getSecond(),
+						(float) canvas.getWidth() / 9 * (fixedNumbers.get(i).getFirst() + 1),
+						(float) canvas.getHeight() / 9 * (fixedNumbers.get(i).getSecond() + 1),
+						fixedNumberPaint);
+			}
 
 			// Highlight current square user touched
 			for (int i = 0; i < 9; i++) {
@@ -158,8 +193,8 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener {
 							.getHeight() / 9 * (j + 1)) / 2;
 					// Need to reposition the coordinates to draw the number to
 					// make it centralized
-					canvas.drawText(String.valueOf(sudokuInput[i][j]), X - 15,
-							Y + 15, numberPaint);
+					canvas.drawText(String.valueOf(sudokuInput[i][j]), X - 18,
+							Y + 25, numberPaint);
 				}
 			}
 
@@ -185,6 +220,34 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener {
 		}
 
 		return true;
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		switch(v.getId()){
+		case R.id.button1:
+			boolean flag = false;
+			if (fingerX!= -1 && fingerY != -1){
+				for (int i = 0; i < 9; i++) {
+					for (int j = 0; j < 9; j++) {
+						if (fingerX < (float) size.x / 9 * (i + 1)
+								&& fingerX > (float) size.x / 9 * i
+								&& fingerY > (float) size.x / 9 * j
+								&& fingerY < (float) size.x / 9
+										* (j + 1)) {
+							sudokuInput[i][j] = 1;
+							flag = true;
+							break;
+						}
+					}
+					if (flag){
+						break;
+					}
+				}
+			}
+			break;
+		}
 	}
 
 }
