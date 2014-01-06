@@ -23,7 +23,7 @@ public class SudokuBoard {
 	// Public Class Constants
 	public final static int EMPTY_VALUE = 0;
 	public enum PLACE_NUMBER_STATUS {
-		OK, ROW_CONFLICT, COL_CONFLICT, SUB_SQUARE_CONFLICT, INVALID_VALUE, INVALID_ROW_COL
+		SUCCESS, ROW_CONFLICT, COL_CONFLICT, SUB_SQUARE_CONFLICT, INVALID_VALUE, INVALID_ROW_COL
 	};
 	
 	// Class attributes
@@ -347,7 +347,7 @@ public class SudokuBoard {
 		
 		// Handle normal cases
 		if (value == boardData[row][col])
-			return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer>(SudokuBoard.PLACE_NUMBER_STATUS.OK, -1);
+			return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer>(SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS, -1);
 		int valueInd = value - 1;
 		if (mapUnitToNumberSieve.get(ROW_STR + Integer.toString(row)).get(valueInd) == EXISTED)
 			return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer>(SudokuBoard.PLACE_NUMBER_STATUS.ROW_CONFLICT, row);
@@ -355,7 +355,7 @@ public class SudokuBoard {
 			return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer>(SudokuBoard.PLACE_NUMBER_STATUS.COL_CONFLICT, col);
 		if (mapUnitToNumberSieve.get(SUB_SQUARE_STR + Integer.toString(getSubBoardId(row, col))).get(valueInd) == EXISTED)
 			return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer>(SudokuBoard.PLACE_NUMBER_STATUS.SUB_SQUARE_CONFLICT, getSubBoardId(row, col));
-		return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer>(SudokuBoard.PLACE_NUMBER_STATUS.OK, -1);
+		return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer>(SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS, -1);
 	}
 	
 	/**
@@ -367,7 +367,7 @@ public class SudokuBoard {
 	 */
 	public Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer> setCellValue(int row, int col, int value) {
 		Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer> placeResult = canSetValue(row, col, value);
-		if (placeResult.getFirst() != SudokuBoard.PLACE_NUMBER_STATUS.OK)
+		if (placeResult.getFirst() != SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS)
 			return placeResult;
 		
 		if (!isEmptyCell(row, col))
