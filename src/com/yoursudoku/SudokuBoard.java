@@ -52,7 +52,7 @@ public class SudokuBoard {
 		if (!Utility.isSquareNumber(inputBoardSize))
 			throw new IllegalArgumentException("Board size must be a square number");
 		
-		constructEmptySudokuBoard(inputBoardSize);		
+		constructEmptySudokuBoard(inputBoardSize, 0, 0);		
 	}
 	
 	/**
@@ -61,6 +61,8 @@ public class SudokuBoard {
 	 * @param another
 	 */
 	public SudokuBoard(SudokuBoard another) {
+		difficultyLevel = another.difficultyLevel;
+		maxPointEarned = another.maxPointEarned;
 		boardSize = another.boardSize;
 		subBoardSize = another.subBoardSize;
 		numEmpty = another.numEmpty;
@@ -77,7 +79,15 @@ public class SudokuBoard {
 		}
 	}
 	
-	public SudokuBoard(List<List<Integer>> inputBoardData) {
+	/**
+	 * 
+	 * @throws IllegalArgumentException
+	 * 
+	 * @param inputBoardData
+	 * @param difficultyLevel
+	 * @param maxPointEarned
+	 */
+	public SudokuBoard(List<List<Integer>> inputBoardData, int difficultyLevel, int maxPointEarned) {
 		int numRow = inputBoardData.size();
 		if (numRow < 1)
 			throw new IllegalArgumentException("The number of rows in the board must be at least 1");
@@ -87,19 +97,31 @@ public class SudokuBoard {
 		if (!Utility.isSquareNumber(numRow))
 			throw new IllegalArgumentException("Board size must be a square number");
 		
-		constructEmptySudokuBoard(numRow);
+		constructEmptySudokuBoard(numRow, difficultyLevel, maxPointEarned);
 		boolean success = setSudokuBoardData(inputBoardData);
 		if (!success)
 			throw new IllegalArgumentException("There is a conflict in the input Sudoku Board data");
+	}
+
+	/**
+	 * 
+	 * @throws IllegalArgumentException
+	 * 
+	 * @param inputBoardData
+	 */
+	public SudokuBoard(List<List<Integer>> inputBoardData) {
+		this(inputBoardData, 0, 0);
 	}
 	
 	/**
 	 * 
 	 * @throws IllegalArgumentException
 	 * 
-	 * @param boardData
+	 * @param inputBoardData
+	 * @param difficultyLevel
+	 * @param maxPointEarned
 	 */
-	public SudokuBoard(Integer[][] inputBoardData) {
+	public SudokuBoard(Integer[][] inputBoardData, int difficultyLevel, int maxPointEarned) {
 		int numRow = inputBoardData.length;
 		if (numRow < 1)
 			throw new IllegalArgumentException("The number of rows in the board must be at least 1");
@@ -109,7 +131,7 @@ public class SudokuBoard {
 		if (!Utility.isSquareNumber(numRow))
 			throw new IllegalArgumentException("Board size must be a square number");
 		
-		constructEmptySudokuBoard(numRow);
+		constructEmptySudokuBoard(numRow, difficultyLevel, maxPointEarned);
 		
 		List<List<Integer>> formatBoardData = new ArrayList<List<Integer>>();
 		for (int row = 0; row < numRow; row++) {
@@ -122,9 +144,21 @@ public class SudokuBoard {
 	
 	/**
 	 * 
+	 * @throws IllegalArgumentException
+	 * 
+	 * @param inputBoardData
+	 */
+	public SudokuBoard(Integer[][] inputBoardData) {
+		this(inputBoardData, 0, 0);
+	}
+	
+	/**
+	 * 
 	 * @param inputBoardSize
 	 */
-	private void constructEmptySudokuBoard(int inputBoardSize) {
+	private void constructEmptySudokuBoard(int inputBoardSize, int inputDifficultyLevel, int inputMaxPointEarned) {
+		difficultyLevel = inputDifficultyLevel;
+		maxPointEarned = inputMaxPointEarned;
 		boardSize = inputBoardSize;
 		subBoardSize = (int) Math.round(Math.floor(Math.sqrt((double) inputBoardSize)));
 		numEmpty = boardSize * boardSize;
