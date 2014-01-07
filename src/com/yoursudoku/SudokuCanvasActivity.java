@@ -5,6 +5,7 @@ import java.util.Stack;
 import java.util.Vector;
 
 import com.yoursudoku.command.Command;
+import com.yoursudoku.database.Database;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -24,9 +25,10 @@ import android.view.ViewGroup;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 public class SudokuCanvasActivity extends Activity implements OnTouchListener, OnClickListener {
-	SudokuBoard sudokuObject;
+	SudokuGame sudokuObject;
 	
 	Stack<Command> commandHistory;	// Support undo action
 	
@@ -58,6 +60,12 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener, O
 		
 		sudokuCanvas.setOnTouchListener(this);
 		btn1.setOnClickListener(this);
+		
+		/*
+		TextView tv = (TextView)findViewById(R.id.textView1);
+		Database db = Database.getDatabase();
+		tv.setText(db.execute(this));
+		*/
 	}
 
 	private void addCanvasView() {
