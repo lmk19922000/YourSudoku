@@ -43,6 +43,7 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener, O
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+		
 		setContentView(R.layout.activity_sudokucanvas);
 		
 		initializeVariables();
