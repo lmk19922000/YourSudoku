@@ -27,7 +27,53 @@ public class SudokuGame {
 	 */
 	public SudokuGame(SudokuBoard sudokuBoard) {
 		gameBoard = new SudokuBoard(sudokuBoard);
-		
+		createEmptyDraftBoard();
+	}
+	
+	/**
+	 * 
+	 * @param boardData
+	 * @param difficultyLevel
+	 * @param maxPointEarned
+	 */
+	public SudokuGame(List<List<Integer>> boardData, int difficultyLevel, int maxPointEarned) {
+		gameBoard = new SudokuBoard(boardData, difficultyLevel, maxPointEarned);
+		createEmptyDraftBoard();
+	}
+	
+	/**
+	 * 
+	 * @param boardData
+	 * @param difficultyLevel
+	 * @param maxPointEarned
+	 */
+	public SudokuGame(Integer[][] boardData, int difficultyLevel, int maxPointEarned) {
+		gameBoard = new SudokuBoard(boardData, difficultyLevel, maxPointEarned);
+		createEmptyDraftBoard();
+	}
+	
+	/**
+	 * 
+	 * @param boardData
+	 */
+	public SudokuGame(Integer[][] boardData) {
+		gameBoard = new SudokuBoard(boardData);
+		createEmptyDraftBoard();
+	}
+	
+	/**
+	 * 
+	 * @param boardData
+	 */
+	public SudokuGame(List<List<Integer>> boardData) {
+		gameBoard = new SudokuBoard(boardData);
+		createEmptyDraftBoard();
+	}
+	
+	/**
+	 *
+	 */
+	private void createEmptyDraftBoard() {
 		int boardSize = gameBoard.getBoardSize();
 		draftBoard = new Vector<Vector<Vector<Integer>>>(boardSize);
 		for (int r = 0; r < boardSize; r++) {
