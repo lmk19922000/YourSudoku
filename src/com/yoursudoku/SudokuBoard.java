@@ -170,6 +170,8 @@ public class SudokuBoard {
 		Vector<Boolean> sampleNumberSieve = new Vector<Boolean>();
 		for (int numEle = 0; numEle < boardSize; numEle++)
 			sampleNumberSieve.add(NOT_EXISTED);
+		
+		mapUnitToNumberSieve = new HashMap<String, Vector<Boolean>>(); 
 		for (int id = 0; id < boardSize; id++) {
 			mapUnitToNumberSieve.put(ROW_STR + Integer.toString(id), new Vector<Boolean>(sampleNumberSieve));
 			mapUnitToNumberSieve.put(COL_STR + Integer.toString(id), new Vector<Boolean>(sampleNumberSieve));
