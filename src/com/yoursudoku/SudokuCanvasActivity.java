@@ -35,7 +35,7 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener, O
 	Point size; // Size of the sudoku board
 	
 	SudokuCanvasView sudokuCanvas; // view to display sudoku
-	int[][] sudokuInput; // Contain information about the sudoku
+	Integer[][] sudokuInput; // Contain information about the sudoku
 	List<Pair<Integer, Integer>> fixedNumbers;
 	float fingerX, fingerY; // current position of user's finger
 	
@@ -91,19 +91,28 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener, O
 
 	@SuppressLint("NewApi")
 	private void initializeVariables() {
-		sudokuInput = new int[9][9];
+		sudokuInput = new Integer[9][9];
 				
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 9; j++) {
 				if ((i == 1 && j == 3) || (i == 1 && j == 6)){
-					sudokuInput[i][j] = 0;
+					//sudokuInput[i][j] = 0;
+					sudokuInput[i][j] = new Integer(0);
 					continue;
 				}
-				sudokuInput[i][j] = j + 1;
+				//sudokuInput[i][j] = j + 1;
+				sudokuInput[i][j] = new Integer(j + 1);
 			}
 		}
 		
-		//sudokuObj = new SudokuGame(new SudokuBoard(sudokuInput));
+		for (int i = 0; i < 9; i++) {
+			for (int j = 0; j < 9; j++) {
+				System.out.print(sudokuInput[i][j] + " ");
+			}
+			System.out.println();
+		}
+		
+		sudokuObject = new SudokuGame(sudokuInput);
 		
 		// Get the list of fixed input
 		fixedNumbers = new Vector<Pair<Integer, Integer>>();
