@@ -414,7 +414,7 @@ public class SudokuBoard {
 	 */
 	private int getSubBoardId(int row, int col) {
 		int rowGroupInd = row / subBoardSize;
-		int colGroupInd = row / subBoardSize;
+		int colGroupInd = col / subBoardSize;
 		int numSubBoardPerRow = subBoardSize;
 		return rowGroupInd * numSubBoardPerRow + colGroupInd;
 	}	
