@@ -92,27 +92,90 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener, O
 	@SuppressLint("NewApi")
 	private void initializeVariables() {
 		sudokuInput = new Integer[9][9];
-				
-		for (int i = 0; i < 9; i++) {
-			for (int j = 0; j < 9; j++) {
-				if ((i == 1 && j == 3) || (i == 1 && j == 6)){
-					//sudokuInput[i][j] = 0;
-					sudokuInput[i][j] = new Integer(0);
-					continue;
-				}
-				//sudokuInput[i][j] = j + 1;
-				sudokuInput[i][j] = new Integer(j + 1);
-			}
-		}
 		
-		for (int i = 0; i < 9; i++) {
-			for (int j = 0; j < 9; j++) {
-				System.out.print(sudokuInput[i][j] + " ");
-			}
-			System.out.println();
-		}
+		sudokuInput[0][0] = new Integer(0);
+		sudokuInput[0][1] = new Integer(7);
+		sudokuInput[0][2] = new Integer(9);
+		sudokuInput[0][3] = new Integer(0);
+		sudokuInput[0][4] = new Integer(0);
+		sudokuInput[0][5] = new Integer(4);
+		sudokuInput[0][6] = new Integer(0);
+		sudokuInput[0][7] = new Integer(0);
+		sudokuInput[0][8] = new Integer(1);
+		sudokuInput[1][0] = new Integer(3);
+		sudokuInput[1][1] = new Integer(0);
+		sudokuInput[1][2] = new Integer(2);
+		sudokuInput[1][3] = new Integer(0);
+		sudokuInput[1][4] = new Integer(1);
+		sudokuInput[1][5] = new Integer(0);
+		sudokuInput[1][6] = new Integer(9);
+		sudokuInput[1][7] = new Integer(0);
+		sudokuInput[1][8] = new Integer(0);
+		sudokuInput[2][0] = new Integer(0);
+		sudokuInput[2][1] = new Integer(0);
+		sudokuInput[2][2] = new Integer(0);
+		sudokuInput[2][3] = new Integer(7);
+		sudokuInput[2][4] = new Integer(6);
+		sudokuInput[2][5] = new Integer(0);
+		sudokuInput[2][6] = new Integer(0);
+		sudokuInput[2][7] = new Integer(0);
+		sudokuInput[2][8] = new Integer(0);
+		sudokuInput[3][0] = new Integer(0);
+		sudokuInput[3][1] = new Integer(3);
+		sudokuInput[3][2] = new Integer(0);
+		sudokuInput[3][3] = new Integer(2);
+		sudokuInput[3][4] = new Integer(0);
+		sudokuInput[3][5] = new Integer(0);
+		sudokuInput[3][6] = new Integer(0);
+		sudokuInput[3][7] = new Integer(0);
+		sudokuInput[3][8] = new Integer(9);
+		sudokuInput[4][0] = new Integer(8);
+		sudokuInput[4][1] = new Integer(0);
+		sudokuInput[4][2] = new Integer(4);
+		sudokuInput[4][3] = new Integer(0);
+		sudokuInput[4][4] = new Integer(0);
+		sudokuInput[4][5] = new Integer(0);
+		sudokuInput[4][6] = new Integer(3);
+		sudokuInput[4][7] = new Integer(0);
+		sudokuInput[4][8] = new Integer(5);
+		sudokuInput[5][0] = new Integer(9);
+		sudokuInput[5][1] = new Integer(0);
+		sudokuInput[5][2] = new Integer(0);
+		sudokuInput[5][3] = new Integer(0);
+		sudokuInput[5][4] = new Integer(0);
+		sudokuInput[5][5] = new Integer(3);
+		sudokuInput[5][6] = new Integer(0);
+		sudokuInput[5][7] = new Integer(1);
+		sudokuInput[5][8] = new Integer(0);
+		sudokuInput[6][0] = new Integer(0);
+		sudokuInput[6][1] = new Integer(0);
+		sudokuInput[6][2] = new Integer(0);
+		sudokuInput[6][3] = new Integer(0);
+		sudokuInput[6][4] = new Integer(7);
+		sudokuInput[6][5] = new Integer(5);
+		sudokuInput[6][6] = new Integer(0);
+		sudokuInput[6][7] = new Integer(0);
+		sudokuInput[6][8] = new Integer(0);
+		sudokuInput[7][0] = new Integer(0);
+		sudokuInput[7][1] = new Integer(0);
+		sudokuInput[7][2] = new Integer(8);
+		sudokuInput[7][3] = new Integer(0);
+		sudokuInput[7][4] = new Integer(3);
+		sudokuInput[7][5] = new Integer(0);
+		sudokuInput[7][6] = new Integer(2);
+		sudokuInput[7][7] = new Integer(0);
+		sudokuInput[7][8] = new Integer(7);
+		sudokuInput[8][0] = new Integer(6);
+		sudokuInput[8][1] = new Integer(0);
+		sudokuInput[8][2] = new Integer(0);
+		sudokuInput[8][3] = new Integer(1);
+		sudokuInput[8][4] = new Integer(0);
+		sudokuInput[8][5] = new Integer(0);
+		sudokuInput[8][6] = new Integer(8);
+		sudokuInput[8][7] = new Integer(9);
+		sudokuInput[8][8] = new Integer(0);
 		
-		sudokuObject = new SudokuGame(sudokuInput);
+		//sudokuObject = new SudokuGame(sudokuInput);
 		
 		// Get the list of fixed input
 		fixedNumbers = new Vector<Pair<Integer, Integer>>();
