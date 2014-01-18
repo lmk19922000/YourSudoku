@@ -75,11 +75,11 @@ public class SudokuGame {
 	 */
 	private void createEmptyDraftBoard() {
 		int boardSize = gameBoard.getBoardSize();
-		draftBoard = new Vector<Vector<Vector<Integer>>>(boardSize);
+		draftBoard = new Vector<Vector<Vector<Integer>>>();
 		for (int r = 0; r < boardSize; r++) {
-			draftBoard.set(r, new Vector<Vector<Integer>>(boardSize));
+			draftBoard.add(new Vector<Vector<Integer>>());
 			for (int c = 0; c < boardSize; c++)
-				draftBoard.get(r).set(c,  new Vector<Integer>());
+				draftBoard.get(r).add(new Vector<Integer>());
 		}
 	}
 	

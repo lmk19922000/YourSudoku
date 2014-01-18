@@ -18,7 +18,7 @@ public class SudokuBoard {
 	private final static String SUB_SQUARE_STR = "S";
 	private final static boolean NOT_EXISTED = false;
 	private final static boolean EXISTED = true;
-	private final static int DEFAULT_BOARD_SIZE = 9;
+	public final static int DEFAULT_BOARD_SIZE = 9;
 	
 	// Public Class Constants
 	public final static int EMPTY_VALUE = 0;
