@@ -27,45 +27,47 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class SudokuCanvasActivity extends Activity implements OnTouchListener, OnClickListener {
+public class SudokuCanvasActivity extends Activity implements OnTouchListener,
+		OnClickListener {
 	SudokuGame sudokuObject;
-	
-	Stack<Command> commandHistory;	// Support undo action
-	
+
+	Stack<Command> commandHistory; // Support undo action
+
 	Point size; // Size of the sudoku board
-	
+
 	SudokuCanvasView sudokuCanvas; // view to display sudoku
 	Integer[][] sudokuInput; // Contain information about the sudoku
 	List<Pair<Integer, Integer>> fixedNumbers;
 	float fingerX, fingerY; // current position of user's finger
-	
-	Button btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9; // Button for input number
+
+	Button btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9; // Button for
+																	// input
+																	// number
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		
+
 		setContentView(R.layout.activity_sudokucanvas);
-		
+
 		initializeVariables();
-		
+
 		addCanvasView();
-		
+
 		initializeCompnentView();
 	}
 
 	private void initializeCompnentView() {
-		btn1 = (Button)findViewById(R.id.button1);
-		
+		btn1 = (Button) findViewById(R.id.button1);
+
 		sudokuCanvas.setOnTouchListener(this);
 		btn1.setOnClickListener(this);
-		
+
 		/*
-		TextView tv = (TextView)findViewById(R.id.textView1);
-		Database db = Database.getDatabase();
-		tv.setText(db.execute(this));
-		*/
+		 * TextView tv = (TextView)findViewById(R.id.textView1); Database db =
+		 * Database.getDatabase(); tv.setText(db.execute(this));
+		 */
 	}
 
 	private void addCanvasView() {
@@ -91,102 +93,24 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener, O
 
 	@SuppressLint("NewApi")
 	private void initializeVariables() {
-		sudokuInput = new Integer[9][9];
-		
-		sudokuInput[0][0] = new Integer(0);
-		sudokuInput[0][1] = new Integer(7);
-		sudokuInput[0][2] = new Integer(9);
-		sudokuInput[0][3] = new Integer(0);
-		sudokuInput[0][4] = new Integer(0);
-		sudokuInput[0][5] = new Integer(4);
-		sudokuInput[0][6] = new Integer(0);
-		sudokuInput[0][7] = new Integer(0);
-		sudokuInput[0][8] = new Integer(1);
-		sudokuInput[1][0] = new Integer(3);
-		sudokuInput[1][1] = new Integer(0);
-		sudokuInput[1][2] = new Integer(2);
-		sudokuInput[1][3] = new Integer(0);
-		sudokuInput[1][4] = new Integer(1);
-		sudokuInput[1][5] = new Integer(0);
-		sudokuInput[1][6] = new Integer(9);
-		sudokuInput[1][7] = new Integer(0);
-		sudokuInput[1][8] = new Integer(0);
-		sudokuInput[2][0] = new Integer(0);
-		sudokuInput[2][1] = new Integer(0);
-		sudokuInput[2][2] = new Integer(0);
-		sudokuInput[2][3] = new Integer(7);
-		sudokuInput[2][4] = new Integer(6);
-		sudokuInput[2][5] = new Integer(0);
-		sudokuInput[2][6] = new Integer(0);
-		sudokuInput[2][7] = new Integer(0);
-		sudokuInput[2][8] = new Integer(0);
-		sudokuInput[3][0] = new Integer(0);
-		sudokuInput[3][1] = new Integer(3);
-		sudokuInput[3][2] = new Integer(0);
-		sudokuInput[3][3] = new Integer(2);
-		sudokuInput[3][4] = new Integer(0);
-		sudokuInput[3][5] = new Integer(0);
-		sudokuInput[3][6] = new Integer(0);
-		sudokuInput[3][7] = new Integer(0);
-		sudokuInput[3][8] = new Integer(9);
-		sudokuInput[4][0] = new Integer(8);
-		sudokuInput[4][1] = new Integer(0);
-		sudokuInput[4][2] = new Integer(4);
-		sudokuInput[4][3] = new Integer(0);
-		sudokuInput[4][4] = new Integer(0);
-		sudokuInput[4][5] = new Integer(0);
-		sudokuInput[4][6] = new Integer(3);
-		sudokuInput[4][7] = new Integer(0);
-		sudokuInput[4][8] = new Integer(5);
-		sudokuInput[5][0] = new Integer(9);
-		sudokuInput[5][1] = new Integer(0);
-		sudokuInput[5][2] = new Integer(0);
-		sudokuInput[5][3] = new Integer(0);
-		sudokuInput[5][4] = new Integer(0);
-		sudokuInput[5][5] = new Integer(3);
-		sudokuInput[5][6] = new Integer(0);
-		sudokuInput[5][7] = new Integer(1);
-		sudokuInput[5][8] = new Integer(0);
-		sudokuInput[6][0] = new Integer(0);
-		sudokuInput[6][1] = new Integer(0);
-		sudokuInput[6][2] = new Integer(0);
-		sudokuInput[6][3] = new Integer(0);
-		sudokuInput[6][4] = new Integer(7);
-		sudokuInput[6][5] = new Integer(5);
-		sudokuInput[6][6] = new Integer(0);
-		sudokuInput[6][7] = new Integer(0);
-		sudokuInput[6][8] = new Integer(0);
-		sudokuInput[7][0] = new Integer(0);
-		sudokuInput[7][1] = new Integer(0);
-		sudokuInput[7][2] = new Integer(8);
-		sudokuInput[7][3] = new Integer(0);
-		sudokuInput[7][4] = new Integer(3);
-		sudokuInput[7][5] = new Integer(0);
-		sudokuInput[7][6] = new Integer(2);
-		sudokuInput[7][7] = new Integer(0);
-		sudokuInput[7][8] = new Integer(7);
-		sudokuInput[8][0] = new Integer(6);
-		sudokuInput[8][1] = new Integer(0);
-		sudokuInput[8][2] = new Integer(0);
-		sudokuInput[8][3] = new Integer(1);
-		sudokuInput[8][4] = new Integer(0);
-		sudokuInput[8][5] = new Integer(0);
-		sudokuInput[8][6] = new Integer(8);
-		sudokuInput[8][7] = new Integer(9);
-		sudokuInput[8][8] = new Integer(0);
-		
-		//sudokuObject = new SudokuGame(sudokuInput);
-		
+		sudokuInput = new Integer[][] { { 0, 7, 9, 0, 0, 4, 0, 0, 1 },
+				{ 3, 0, 2, 0, 1, 0, 9, 0, 0 }, { 0, 0, 0, 7, 6, 0, 0, 0, 0 },
+				{ 0, 3, 0, 2, 0, 0, 0, 0, 9 }, { 8, 0, 4, 0, 0, 0, 3, 0, 5 },
+				{ 9, 0, 0, 0, 0, 3, 0, 1, 0 }, { 0, 0, 0, 0, 7, 5, 0, 0, 0 },
+				{ 0, 0, 8, 0, 3, 0, 2, 0, 7 }, { 6, 0, 0, 1, 0, 0, 8, 9, 0 } };
+
+		sudokuObject = new SudokuGame(sudokuInput);
+
 		// Get the list of fixed input
 		fixedNumbers = new Vector<Pair<Integer, Integer>>();
 		fixedNumbers.add(new Pair<Integer, Integer>(2, 3));
 		fixedNumbers.add(new Pair<Integer, Integer>(3, 7));
 		fixedNumbers.add(new Pair<Integer, Integer>(5, 4));
-		
+
 		fingerX = fingerY = -1;
-		
+
 		commandHistory = new Stack<Command>();
-		
+
 		// Get size of the screen to decide size of the canvas
 		Display display = getWindowManager().getDefaultDisplay();
 		size = new Point();
@@ -235,10 +159,14 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener, O
 
 			// Draw squares containing fixed input
 			for (int i = 0; i < fixedNumbers.size(); i++) {
-				canvas.drawRect((float) canvas.getWidth() / 9 * fixedNumbers.get(i).getFirst(),
-						(float) canvas.getHeight() / 9 * fixedNumbers.get(i).getSecond(),
-						(float) canvas.getWidth() / 9 * (fixedNumbers.get(i).getFirst() + 1),
-						(float) canvas.getHeight() / 9 * (fixedNumbers.get(i).getSecond() + 1),
+				canvas.drawRect((float) canvas.getWidth() / 9
+						* fixedNumbers.get(i).getFirst(),
+						(float) canvas.getHeight() / 9
+								* fixedNumbers.get(i).getSecond(),
+						(float) canvas.getWidth() / 9
+								* (fixedNumbers.get(i).getFirst() + 1),
+						(float) canvas.getHeight() / 9
+								* (fixedNumbers.get(i).getSecond() + 1),
 						fixedNumberPaint);
 			}
 
@@ -326,23 +254,22 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener, O
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
-		switch(v.getId()){
+		switch (v.getId()) {
 		case R.id.button1:
 			boolean flag = false;
-			if (fingerX!= -1 && fingerY != -1){
+			if (fingerX != -1 && fingerY != -1) {
 				for (int i = 0; i < 9; i++) {
 					for (int j = 0; j < 9; j++) {
 						if (fingerX < (float) size.x / 9 * (i + 1)
 								&& fingerX > (float) size.x / 9 * i
 								&& fingerY > (float) size.x / 9 * j
-								&& fingerY < (float) size.x / 9
-										* (j + 1)) {
+								&& fingerY < (float) size.x / 9 * (j + 1)) {
 							sudokuInput[i][j] = 1;
 							flag = true;
 							break;
 						}
 					}
-					if (flag){
+					if (flag) {
 						break;
 					}
 				}
