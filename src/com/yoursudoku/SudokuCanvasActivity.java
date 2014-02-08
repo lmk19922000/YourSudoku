@@ -29,7 +29,8 @@ import android.widget.TextView;
 
 public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 		OnClickListener {
-	SudokuGame sudokuObject;
+	SudokuGame sudokuGameObject;
+	SudokuBoard sudokuBoardObject;
 
 	Stack<Command> commandHistory; // Support undo action
 
@@ -37,7 +38,7 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 
 	SudokuCanvasView sudokuCanvas; // view to display sudoku
 	Integer[][] sudokuInput; // Contain information about the sudoku
-	List<Pair<Integer, Integer>> fixedNumbers;
+	List<Pair<Integer, Integer>> fixedCells;
 	float fingerX, fingerY; // current position of user's finger
 
 	Button btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9; // Button for
@@ -93,26 +94,24 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 
 	@SuppressLint("NewApi")
 	private void initializeVariables() {
+		// TODO: Load this input from database
 		sudokuInput = new Integer[][] { { 0, 7, 9, 0, 0, 4, 0, 0, 1 },
 				{ 3, 0, 2, 0, 1, 0, 9, 0, 0 }, { 0, 0, 0, 7, 6, 0, 0, 0, 0 },
 				{ 0, 3, 0, 2, 0, 0, 0, 0, 9 }, { 8, 0, 4, 0, 0, 0, 3, 0, 5 },
 				{ 9, 0, 0, 0, 0, 3, 0, 1, 0 }, { 0, 0, 0, 0, 7, 5, 0, 0, 0 },
 				{ 0, 0, 8, 0, 3, 0, 2, 0, 7 }, { 6, 0, 0, 1, 0, 0, 8, 9, 0 } };
 
-		sudokuObject = new SudokuGame(sudokuInput);
-
-		// Get the list of fixed input
-		/*
-		fixedNumbers = new Vector<Pair<Integer, Integer>>();
-		fixedNumbers.add(new Pair<Integer, Integer>(2, 3));
-		fixedNumbers.add(new Pair<Integer, Integer>(3, 7));
-		fixedNumbers.add(new Pair<Integer, Integer>(5, 4));
-		*/
+		sudokuGameObject = new SudokuGame(sudokuInput);
+		sudokuBoardObject = sudokuGameObject.getSudokuBoard();
 		
-		fixedNumbers = new Vector<Pair<Integer, Integer>>();
+		// Get the list of fixed input
+		fixedCells = new Vector<Pair<Integer, Integer>>();
+		
 		for (int i = 0; i <9; i++){
 			for (int j = 0; j <9; j++){
-				if (sudokuObject.g)
+				if (sudokuBoardObject.getCellValue(i, j) != 0){
+					fixedCells.add(new Pair<Integer, Integer>(i,j));
+				}
 			}
 		}
 			
@@ -130,7 +129,7 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 	public class SudokuCanvasView extends View {
 
 		private Paint normalGridPaint, thickGridPaint, numberPaint,
-				fixedNumberPaint, highlightPaint;
+				fixedCellPaint, highlightPaint;
 
 		public SudokuCanvasView(Context context) {
 			super(context);
@@ -149,9 +148,9 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 			numberPaint.setColor(Color.RED);
 			numberPaint.setTextSize(70);
 
-			fixedNumberPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-			fixedNumberPaint.setStyle(Paint.Style.FILL);
-			fixedNumberPaint.setColor(Color.GRAY);
+			fixedCellPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+			fixedCellPaint.setStyle(Paint.Style.FILL);
+			fixedCellPaint.setColor(Color.GRAY);
 
 			highlightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 			highlightPaint.setStyle(Paint.Style.FILL);
@@ -167,16 +166,16 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 			canvas.drawColor(Color.CYAN);
 
 			// Draw squares containing fixed input
-			for (int i = 0; i < fixedNumbers.size(); i++) {
+			for (int i = 0; i < fixedCells.size(); i++) {
 				canvas.drawRect((float) canvas.getWidth() / 9
-						* fixedNumbers.get(i).getFirst(),
+						* fixedCells.get(i).getSecond(),
 						(float) canvas.getHeight() / 9
-								* fixedNumbers.get(i).getSecond(),
+								* fixedCells.get(i).getFirst(),
 						(float) canvas.getWidth() / 9
-								* (fixedNumbers.get(i).getFirst() + 1),
+								* (fixedCells.get(i).getSecond() + 1),
 						(float) canvas.getHeight() / 9
-								* (fixedNumbers.get(i).getSecond() + 1),
-						fixedNumberPaint);
+								* (fixedCells.get(i).getFirst() + 1),
+						fixedCellPaint);
 			}
 
 			// Highlight current square user touched
@@ -224,15 +223,17 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 
 			// Draw numbers to sudoku
 			for (int i = 0; i < 9; i++) {
-				X = ((float) canvas.getWidth() / 9 * i + (float) canvas
-						.getWidth() / 9 * (i + 1)) / 2;
+				Y = ((float) canvas.getHeight() / 9 * i + (float) canvas
+						.getHeight() / 9 * (i + 1)) / 2;
 				for (int j = 0; j < 9; j++) {
-					Y = ((float) canvas.getHeight() / 9 * j + (float) canvas
-							.getHeight() / 9 * (j + 1)) / 2;
+					X = ((float) canvas.getWidth() / 9 * j + (float) canvas
+							.getWidth() / 9 * (j + 1)) / 2;
 					// Need to reposition the coordinates to draw the number to
 					// make it centralized
-					canvas.drawText(String.valueOf(sudokuInput[i][j]), X - 18,
-							Y + 25, numberPaint);
+					if (sudokuBoardObject.getCellValue(i, j) != 0){
+						canvas.drawText(String.valueOf(sudokuBoardObject.getCellValue(i, j)), X - 18,
+								Y + 25, numberPaint);
+					}
 				}
 			}
 
@@ -273,7 +274,12 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 								&& fingerX > (float) size.x / 9 * i
 								&& fingerY > (float) size.x / 9 * j
 								&& fingerY < (float) size.x / 9 * (j + 1)) {
-							sudokuInput[i][j] = 1;
+							Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer> result = sudokuBoardObject.setCellValue(i, j, 1);
+							if(result.getFirst() != SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS){
+								Log.i("Set cell violate", result.getFirst().toString());
+								Log.i("Set cell violate", result.getSecond().toString());
+							}
+							
 							flag = true;
 							break;
 						}
