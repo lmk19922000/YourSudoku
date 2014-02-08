@@ -32,14 +32,15 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 	SudokuGame sudokuGameObject;
 	SudokuBoard sudokuBoardObject;
 
-	Stack<Command> commandHistory; // Support undo action
+	Stack<Command> commandHistory; 				// Support undo action
 
-	Point size; // Size of the sudoku board
+	Point size; 								// Size of the sudoku board (in terms of phone screen)
 
-	SudokuCanvasView sudokuCanvas; // view to display sudoku
-	Integer[][] sudokuInput; // Contain information about the sudoku
-	List<Pair<Integer, Integer>> fixedCells;
-	float fingerX, fingerY; // current position of user's finger
+	SudokuCanvasView sudokuCanvas; 				// view to display sudoku
+	Integer[][] sudokuInput; 					// Contain information about the sudoku
+	List<Pair<Integer, Integer>> fixedCells;	// Contain fixed cells at the beginning 
+	Pair<Integer, Integer> violatedCell;		
+	float fingerX, fingerY; 					// current position of user's finger
 
 	Button btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9; // Button for
 																	// input
@@ -114,7 +115,9 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 				}
 			}
 		}
-			
+		
+		violatedCell = new Pair<Integer, Integer>(-1, -1);
+		
 		fingerX = fingerY = -1;
 
 		commandHistory = new Stack<Command>();
@@ -129,7 +132,7 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 	public class SudokuCanvasView extends View {
 
 		private Paint normalGridPaint, thickGridPaint, numberPaint,
-				fixedCellPaint, highlightPaint;
+				fixedCellPaint, highlightPaint, violatedPaint;
 
 		public SudokuCanvasView(Context context) {
 			super(context);
@@ -145,7 +148,7 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 
 			numberPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 			numberPaint.setStyle(Paint.Style.FILL);
-			numberPaint.setColor(Color.RED);
+			numberPaint.setColor(Color.GREEN);
 			numberPaint.setTextSize(70);
 
 			fixedCellPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -155,6 +158,10 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 			highlightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 			highlightPaint.setStyle(Paint.Style.FILL);
 			highlightPaint.setColor(Color.YELLOW);
+			
+			violatedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+			violatedPaint.setStyle(Paint.Style.FILL);
+			violatedPaint.setColor(Color.RED);
 		}
 
 		@Override
@@ -163,7 +170,7 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 
 			float X, Y;
 
-			canvas.drawColor(Color.CYAN);
+			canvas.drawColor(Color.WHITE);
 
 			// Draw squares containing fixed input
 			for (int i = 0; i < fixedCells.size(); i++) {
@@ -177,7 +184,20 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 								* (fixedCells.get(i).getFirst() + 1),
 						fixedCellPaint);
 			}
-
+			
+			// Draw violated cell (if have)
+			if (violatedCell.getFirst() != -1 && violatedCell.getSecond() != -1){
+				canvas.drawRect((float) canvas.getWidth() / 9
+						* violatedCell.getSecond(),
+						(float) canvas.getHeight() / 9
+								* violatedCell.getFirst(),
+						(float) canvas.getWidth() / 9
+								* (violatedCell.getSecond() + 1),
+						(float) canvas.getHeight() / 9
+								* (violatedCell.getFirst() + 1),
+						violatedPaint);
+			}
+			
 			// Highlight current square user touched
 			for (int i = 0; i < 9; i++) {
 				for (int j = 0; j < 9; j++) {
@@ -274,10 +294,32 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 								&& fingerX > (float) size.x / 9 * i
 								&& fingerY > (float) size.x / 9 * j
 								&& fingerY < (float) size.x / 9 * (j + 1)) {
-							Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer> result = sudokuBoardObject.setCellValue(i, j, 1);
-							if(result.getFirst() != SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS){
-								Log.i("Set cell violate", result.getFirst().toString());
-								Log.i("Set cell violate", result.getSecond().toString());
+							Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer> result = sudokuBoardObject.setCellValue(j, i, 1);
+							if(result.getFirst() == SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS){
+								violatedCell.setFirst(-1);
+								violatedCell.setSecond(-1);
+							} else if(result.getFirst() == SudokuBoard.PLACE_NUMBER_STATUS.ROW_CONFLICT){
+								for (int k = 0; k < 9; k++){
+									if (sudokuBoardObject.getCellValue(result.getSecond(), k) == 1){
+										violatedCell.setFirst(result.getSecond());
+										violatedCell.setSecond(k);
+									}
+								}
+							} else if(result.getFirst() == SudokuBoard.PLACE_NUMBER_STATUS.COL_CONFLICT){
+								for (int k = 0; k < 9; k++){
+									if (sudokuBoardObject.getCellValue(k, result.getSecond()) == 1){
+										violatedCell.setFirst(k);
+										violatedCell.setSecond(result.getSecond());
+									}
+								}
+							} else if(result.getFirst() == SudokuBoard.PLACE_NUMBER_STATUS.SUB_SQUARE_CONFLICT){
+								// TODO
+								for (int k = 0; k < 9; k++){
+									if (sudokuBoardObject.getCellValue(k, result.getSecond()) == 1){
+										violatedCell.setFirst(k);
+										violatedCell.setSecond(result.getSecond());
+									}
+								}
 							}
 							
 							flag = true;
