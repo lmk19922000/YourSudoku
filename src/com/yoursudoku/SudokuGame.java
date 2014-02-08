@@ -185,6 +185,14 @@ public class SudokuGame {
 	 * 
 	 * @return
 	 */
+	public SudokuBoard getSudokuBoard() {
+		return gameBoard;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public boolean isSolved() {
 		return gameBoard.isSolved();
 	}
