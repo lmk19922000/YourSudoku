@@ -102,11 +102,20 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 		sudokuObject = new SudokuGame(sudokuInput);
 
 		// Get the list of fixed input
+		/*
 		fixedNumbers = new Vector<Pair<Integer, Integer>>();
 		fixedNumbers.add(new Pair<Integer, Integer>(2, 3));
 		fixedNumbers.add(new Pair<Integer, Integer>(3, 7));
 		fixedNumbers.add(new Pair<Integer, Integer>(5, 4));
-
+		*/
+		
+		fixedNumbers = new Vector<Pair<Integer, Integer>>();
+		for (int i = 0; i <9; i++){
+			for (int j = 0; j <9; j++){
+				if (sudokuObject.g)
+			}
+		}
+			
 		fingerX = fingerY = -1;
 
 		commandHistory = new Stack<Command>();
