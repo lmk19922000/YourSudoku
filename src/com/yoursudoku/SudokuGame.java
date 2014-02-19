@@ -90,8 +90,9 @@ public class SudokuGame {
 	 * @param draftNum
 	 * @return
 	 */
-	public Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer> addDraftNumber(int row, int col, int draftNum) {
-		Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer> placeStatus = gameBoard.canSetValue(row, col, draftNum);
+	public Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>> addDraftNumber(int row, int col, int draftNum) {
+		Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>> placeStatus = 
+				gameBoard.canSetValue(row, col, draftNum);
 		if (placeStatus.getFirst() != SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS)
 			return placeStatus;
 		

@@ -16,9 +16,8 @@ public class SudokuBoard {
 	private final static String ROW_STR = "R";
 	private final static String COL_STR = "C";
 	private final static String SUB_SQUARE_STR = "S";
-	private final static boolean NOT_EXISTED = false;
-	private final static boolean EXISTED = true;
 	public final static int DEFAULT_BOARD_SIZE = 9;
+	private final static int NOT_EXIST = -1;
 	
 	// Public Class Constants
 	public final static int EMPTY_VALUE = 0;
@@ -33,7 +32,7 @@ public class SudokuBoard {
 	private int numEmpty;
 	private int difficultyLevel;
 	private int maxPointEarned;
-	private HashMap<String, Vector<Boolean>> mapUnitToNumberSieve;
+	private HashMap<String, Vector<Integer>> mapUnitToNumberSieve;
 	
 	/**
 	 * Default constructor: Creates a standard 9 x 9 Sudoku board
@@ -72,9 +71,9 @@ public class SudokuBoard {
 			for (int col = 0; col < boardSize; col++)
 				boardData[row][col] = another.boardData[row][col];
 		
-		mapUnitToNumberSieve = new HashMap<String, Vector<Boolean>>();
+		mapUnitToNumberSieve = new HashMap<String, Vector<Integer>>();
 		for (String key : another.mapUnitToNumberSieve.keySet()) {
-			Vector<Boolean> sieveData = new Vector<Boolean>(another.mapUnitToNumberSieve.get(key));
+			Vector<Integer> sieveData = new Vector<Integer>(another.mapUnitToNumberSieve.get(key));
 			mapUnitToNumberSieve.put(key, sieveData);
 		}
 	}
@@ -167,15 +166,15 @@ public class SudokuBoard {
 			for (int c = 0; c < boardSize; c++)
 				boardData[r][c] = EMPTY_VALUE;
 		
-		Vector<Boolean> sampleNumberSieve = new Vector<Boolean>();
+		Vector<Integer> sampleNumberSieve = new Vector<Integer>();
 		for (int numEle = 0; numEle < boardSize; numEle++)
-			sampleNumberSieve.add(NOT_EXISTED);
+			sampleNumberSieve.add(NOT_EXIST);
 		
-		mapUnitToNumberSieve = new HashMap<String, Vector<Boolean>>(); 
+		mapUnitToNumberSieve = new HashMap<String, Vector<Integer>>(); 
 		for (int id = 0; id < boardSize; id++) {
-			mapUnitToNumberSieve.put(ROW_STR + Integer.toString(id), new Vector<Boolean>(sampleNumberSieve));
-			mapUnitToNumberSieve.put(COL_STR + Integer.toString(id), new Vector<Boolean>(sampleNumberSieve));
-			mapUnitToNumberSieve.put(SUB_SQUARE_STR + Integer.toString(id), new Vector<Boolean>(sampleNumberSieve));
+			mapUnitToNumberSieve.put(ROW_STR + Integer.toString(id), new Vector<Integer>(sampleNumberSieve));
+			mapUnitToNumberSieve.put(COL_STR + Integer.toString(id), new Vector<Integer>(sampleNumberSieve));
+			mapUnitToNumberSieve.put(SUB_SQUARE_STR + Integer.toString(id), new Vector<Integer>(sampleNumberSieve));
 		}
 	}
 
@@ -196,14 +195,15 @@ public class SudokuBoard {
 					int valInd = val - 1;
 					
 					String colKey = COL_STR + Integer.toString(col);
-					String subSquareKey = SUB_SQUARE_STR + Integer.toString(getSubBoardId(row, col));
-					if (mapUnitToNumberSieve.get(rowKey).get(valInd) == EXISTED ||
-						mapUnitToNumberSieve.get(colKey).get(valInd) == EXISTED ||
-						mapUnitToNumberSieve.get(subSquareKey).get(valInd) == EXISTED)
+					int subBoardId = getSubBoardId(row, col);
+					String subSquareKey = SUB_SQUARE_STR + Integer.toString(subBoardId);
+					if (mapUnitToNumberSieve.get(rowKey).get(valInd) != NOT_EXIST ||
+						mapUnitToNumberSieve.get(colKey).get(valInd) != NOT_EXIST ||
+						mapUnitToNumberSieve.get(subSquareKey).get(valInd) != NOT_EXIST)
 						return false;
-					mapUnitToNumberSieve.get(rowKey).set(valInd,  EXISTED);
-					mapUnitToNumberSieve.get(colKey).set(valInd, EXISTED);
-					mapUnitToNumberSieve.get(subSquareKey).set(valInd, EXISTED);
+					mapUnitToNumberSieve.get(rowKey).set(valInd,  col);
+					mapUnitToNumberSieve.get(colKey).set(valInd, row);
+					mapUnitToNumberSieve.get(subSquareKey).set(valInd, row * boardSize + col);
 				}
 			}
 		}
@@ -340,24 +340,48 @@ public class SudokuBoard {
 	 * @param value
 	 * @return
 	 */
-	public Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer> canSetValue(int row, int col, int value) {
+	public Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>> canSetValue(int row, int col, int value) {
 		// Handle invalid-input cases
-		if (row < 0 || col < 0 || row >= boardSize || col >= boardSize)
-			return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer>(SudokuBoard.PLACE_NUMBER_STATUS.INVALID_VALUE, -1);
-		if (value <= 0 || value > boardSize)
-			return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer>(SudokuBoard.PLACE_NUMBER_STATUS.INVALID_ROW_COL, -1);
+		if (row < 0 || col < 0 || row >= boardSize || col >= boardSize) {
+			return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>>(
+					   SudokuBoard.PLACE_NUMBER_STATUS.INVALID_VALUE, new Pair<Integer, Integer>(-1, -1));
+		}
+		if (value <= 0 || value > boardSize) {
+			return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>>(
+					   SudokuBoard.PLACE_NUMBER_STATUS.INVALID_ROW_COL, new Pair<Integer, Integer>(-1, -1));
+		}
 		
 		// Handle normal cases
-		if (value == boardData[row][col])
-			return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer>(SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS, -1);
+		if (value == boardData[row][col]) {
+			return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>>(
+					   SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS, new Pair<Integer, Integer>(row, col));
+		}
 		int valueInd = value - 1;
-		if (mapUnitToNumberSieve.get(ROW_STR + Integer.toString(row)).get(valueInd) == EXISTED)
-			return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer>(SudokuBoard.PLACE_NUMBER_STATUS.ROW_CONFLICT, row);
-		if (mapUnitToNumberSieve.get(COL_STR + Integer.toString(col)).get(valueInd) == EXISTED)
-			return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer>(SudokuBoard.PLACE_NUMBER_STATUS.COL_CONFLICT, col);
-		if (mapUnitToNumberSieve.get(SUB_SQUARE_STR + Integer.toString(getSubBoardId(row, col))).get(valueInd) == EXISTED)
-			return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer>(SudokuBoard.PLACE_NUMBER_STATUS.SUB_SQUARE_CONFLICT, getSubBoardId(row, col));
-		return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer>(SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS, -1);
+		
+		int elementCol = mapUnitToNumberSieve.get(ROW_STR + Integer.toString(row)).get(valueInd);
+		if (elementCol != NOT_EXIST) {
+			return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>>(
+					   SudokuBoard.PLACE_NUMBER_STATUS.ROW_CONFLICT, new Pair<Integer, Integer>(row, elementCol));
+		}
+		
+		int elementRow = mapUnitToNumberSieve.get(COL_STR + Integer.toString(col)).get(valueInd);
+		if (elementRow != NOT_EXIST) {
+			return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>>(
+					   SudokuBoard.PLACE_NUMBER_STATUS.COL_CONFLICT, new Pair<Integer, Integer>(elementRow, col));
+		}
+		
+		int subBoardId = getSubBoardId(row, col);
+		int elementCellId= mapUnitToNumberSieve.get(SUB_SQUARE_STR + Integer.toString(subBoardId)).get(valueInd);
+		if (elementCellId != NOT_EXIST) {
+			int violatedRow = elementCellId / boardSize;
+			int violatedCol = elementCellId % boardSize;
+			return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>>(
+					   SudokuBoard.PLACE_NUMBER_STATUS.SUB_SQUARE_CONFLICT,
+					   new Pair<Integer, Integer>(violatedRow, violatedCol)); 
+		}
+		
+		return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>>(
+				   SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS, new Pair<Integer, Integer>(row, col));
 	}
 	
 	/**
@@ -367,8 +391,8 @@ public class SudokuBoard {
 	 * @param value
 	 * @return
 	 */
-	public Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer> setCellValue(int row, int col, int value) {
-		Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer> placeResult = canSetValue(row, col, value);
+	public Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>> setCellValue(int row, int col, int value) {
+		Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>> placeResult = canSetValue(row, col, value);
 		if (placeResult.getFirst() != SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS)
 			return placeResult;
 		
@@ -378,9 +402,10 @@ public class SudokuBoard {
 		numEmpty--;
 		boardData[row][col] = value;
 		int valueInd = value - 1;
-		mapUnitToNumberSieve.get(ROW_STR + Integer.toString(row)).set(valueInd, EXISTED);
-		mapUnitToNumberSieve.get(COL_STR + Integer.toString(col)).set(valueInd, EXISTED);
-		mapUnitToNumberSieve.get(SUB_SQUARE_STR + Integer.toString(getSubBoardId(row, col))).set(valueInd, EXISTED);
+		int subBoardId = getSubBoardId(row, col);
+		mapUnitToNumberSieve.get(ROW_STR + Integer.toString(row)).set(valueInd, col);
+		mapUnitToNumberSieve.get(COL_STR + Integer.toString(col)).set(valueInd, row);
+		mapUnitToNumberSieve.get(SUB_SQUARE_STR + Integer.toString(subBoardId)).set(valueInd, row * boardSize + col);
 		return placeResult;
 	}
 	
@@ -400,9 +425,9 @@ public class SudokuBoard {
 		int oldVal = boardData[row][col];
 		boardData[row][col] = EMPTY_VALUE;
 		int oldValInd = oldVal - 1;
-		mapUnitToNumberSieve.get(ROW_STR + Integer.toString(row)).set(oldValInd, NOT_EXISTED);
-		mapUnitToNumberSieve.get(COL_STR + Integer.toString(col)).set(oldValInd, NOT_EXISTED);
-		mapUnitToNumberSieve.get(SUB_SQUARE_STR + Integer.toString(getSubBoardId(row, col))).set(oldValInd, NOT_EXISTED);
+		mapUnitToNumberSieve.get(ROW_STR + Integer.toString(row)).set(oldValInd, NOT_EXIST);
+		mapUnitToNumberSieve.get(COL_STR + Integer.toString(col)).set(oldValInd, NOT_EXIST);
+		mapUnitToNumberSieve.get(SUB_SQUARE_STR + Integer.toString(getSubBoardId(row, col))).set(oldValInd, NOT_EXIST);
 	}
 	
 	/**
