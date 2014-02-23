@@ -26,6 +26,7 @@ import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 		OnClickListener {
@@ -42,10 +43,14 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 	Pair<Integer, Integer> violatedCell;		
 	float fingerX, fingerY; 					// current position of user's finger
 
-	Button btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9; // Button for
-																	// input
-																	// number
-
+	Button btn1, btn2, btn3, btn4,
+	btn5, btn6, btn7, btn8, btn9; // Button for input number
+	
+	Button btnUndo, btnClear;
+	ToggleButton btnDraft;
+	
+	boolean inDraftMode;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -69,7 +74,12 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 		btn7 = (Button) findViewById(R.id.button7);
 		btn8 = (Button) findViewById(R.id.button8);
 		btn9 = (Button) findViewById(R.id.button9);
-
+		btnUndo = (Button) findViewById(R.id.buttonUndo);
+		btnClear = (Button) findViewById(R.id.buttonClear);
+		btnDraft = (ToggleButton) findViewById(R.id.buttonDraft);
+		
+		btnDraft.setChecked(false);
+		
 		sudokuCanvas.setOnTouchListener(this);
 		btn1.setOnClickListener(this);
 		btn2.setOnClickListener(this);
@@ -80,6 +90,9 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 		btn7.setOnClickListener(this);
 		btn8.setOnClickListener(this);
 		btn9.setOnClickListener(this);
+		btnUndo.setOnClickListener(this);
+		btnClear.setOnClickListener(this);
+		btnDraft.setOnClickListener(this);
 
 		/*
 		 * TextView tv = (TextView)findViewById(R.id.textView1); Database db =
@@ -141,6 +154,8 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 		Display display = getWindowManager().getDefaultDisplay();
 		size = new Point();
 		display.getSize(size);
+		
+		inDraftMode = false;
 	}
 
 	// View class to display sudoku
@@ -325,6 +340,19 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 		case R.id.button9:
 			placeNumber(9);
 			break;
+		case R.id.buttonDraft:
+			if (btnDraft.isChecked()){
+				inDraftMode = true;
+			} else{
+				inDraftMode = false;
+			}
+			break;
+		case R.id.buttonUndo:
+			
+			break;
+		case R.id.buttonClear:
+			
+			break;
 		}
 	}
 
@@ -351,13 +379,24 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 							break;
 						}
 						
-						Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>> result = sudokuBoardObject.setCellValue(j, i, num);
-						if(result.getFirst() == SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS){
-							violatedCell.setFirst(-1);
-							violatedCell.setSecond(-1);
-						} else {
-							violatedCell.setFirst(result.getSecond().getFirst());
-							violatedCell.setSecond(result.getSecond().getSecond());
+						if (!inDraftMode){
+							Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>> result = sudokuBoardObject.setCellValue(j, i, num);
+							if(result.getFirst() == SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS){
+								violatedCell.setFirst(-1);
+								violatedCell.setSecond(-1);
+							} else {
+								violatedCell.setFirst(result.getSecond().getFirst());
+								violatedCell.setSecond(result.getSecond().getSecond());
+							}
+						} else{
+							Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>> result = sudokuGameObject.addDraftNumber(j, i, num);
+							if(result.getFirst() == SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS){
+								violatedCell.setFirst(-1);
+								violatedCell.setSecond(-1);
+							} else {
+								violatedCell.setFirst(result.getSecond().getFirst());
+								violatedCell.setSecond(result.getSecond().getSecond());
+							}
 						}
 						
 						flag = true;

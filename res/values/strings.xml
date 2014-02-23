@@ -4,9 +4,10 @@
     <string name="app_name">YourSudoku</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
-    <string name="undo">Undo</string>
-    <string name="draft">Draft</string>
-    <string name="clear">Clear</string>
+    <string name="undo">UNDO</string>
+    <string name="draftOn">DRAFT ON</string>
+    <string name="draftOff">DRAFT OFF</string>
+    <string name="clear">CLEAR</string>
     <string name="num1">1</string>
     <string name="num2">2</string>
     <string name="num3">3</string>

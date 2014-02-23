@@ -42,7 +42,7 @@
 
     <Button
         android:id="@+id/buttonUndo"
-        android:layout_width="80dp"
+        android:layout_width="100dp"
         android:layout_height="45dp"
         android:layout_alignLeft="@+id/buttonDraft"
         android:layout_below="@+id/buttonDraft"
@@ -50,12 +50,13 @@
     
     <ToggleButton
         android:id="@+id/buttonDraft"
-        android:layout_width="80dp"
+        android:layout_width="100dp"
         android:layout_height="45dp"
         android:layout_alignBaseline="@+id/button3"
         android:layout_alignBottom="@+id/button3"
         android:layout_alignParentRight="true"
-        android:text="@string/draft" />
+        android:textOn="@string/draftOn"
+        android:textOff="@string/draftOff" />
 
     <Button
         android:id="@+id/button2"
@@ -108,7 +109,7 @@
 
     <Button
         android:id="@+id/buttonClear"
-        android:layout_width="80dp"
+        android:layout_width="100dp"
         android:layout_height="45dp"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/buttonUndo"
