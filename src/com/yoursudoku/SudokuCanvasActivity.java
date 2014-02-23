@@ -48,7 +48,6 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_sudokucanvas);
@@ -62,9 +61,25 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 
 	private void initializeCompnentView() {
 		btn1 = (Button) findViewById(R.id.button1);
+		btn2 = (Button) findViewById(R.id.button2);
+		btn3 = (Button) findViewById(R.id.button3);
+		btn4 = (Button) findViewById(R.id.button4);
+		btn5 = (Button) findViewById(R.id.button5);
+		btn6 = (Button) findViewById(R.id.button6);
+		btn7 = (Button) findViewById(R.id.button7);
+		btn8 = (Button) findViewById(R.id.button8);
+		btn9 = (Button) findViewById(R.id.button9);
 
 		sudokuCanvas.setOnTouchListener(this);
 		btn1.setOnClickListener(this);
+		btn2.setOnClickListener(this);
+		btn3.setOnClickListener(this);
+		btn4.setOnClickListener(this);
+		btn5.setOnClickListener(this);
+		btn6.setOnClickListener(this);
+		btn7.setOnClickListener(this);
+		btn8.setOnClickListener(this);
+		btn9.setOnClickListener(this);
 
 		/*
 		 * TextView tv = (TextView)findViewById(R.id.textView1); Database db =
@@ -285,39 +300,75 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.button1:
-			boolean flag = false;
-			if (fingerX != -1 && fingerY != -1) {
-				for (int i = 0; i < 9; i++) {
-					for (int j = 0; j < 9; j++) {
-						if (fingerX < (float) size.x / 9 * (i + 1)
-								&& fingerX > (float) size.x / 9 * i
-								&& fingerY > (float) size.x / 9 * j
-								&& fingerY < (float) size.x / 9 * (j + 1)) {
-							Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>> result = sudokuBoardObject.setCellValue(j, i, 1);
-							if(result.getFirst() == SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS){
-								violatedCell.setFirst(-1);
-								violatedCell.setSecond(-1);
-							} else if(result.getFirst() == SudokuBoard.PLACE_NUMBER_STATUS.ROW_CONFLICT){
-								violatedCell.setFirst(result.getSecond().getFirst());
-								violatedCell.setSecond(result.getSecond().getSecond());
-							} else if(result.getFirst() == SudokuBoard.PLACE_NUMBER_STATUS.COL_CONFLICT){
-								violatedCell.setFirst(result.getSecond().getFirst());
-								violatedCell.setSecond(result.getSecond().getSecond());
-							} else if(result.getFirst() == SudokuBoard.PLACE_NUMBER_STATUS.SUB_SQUARE_CONFLICT){
-								violatedCell.setFirst(result.getSecond().getFirst());
-								violatedCell.setSecond(result.getSecond().getSecond());
+			placeNumber(1);
+			break;
+		case R.id.button2:
+			placeNumber(2);
+			break;
+		case R.id.button3:
+			placeNumber(3);
+			break;
+		case R.id.button4:
+			placeNumber(4);
+			break;
+		case R.id.button5:
+			placeNumber(5);
+			break;
+		case R.id.button6:
+			placeNumber(6);
+			break;
+		case R.id.button7:
+			placeNumber(7);
+			break;
+		case R.id.button8:
+			placeNumber(8);
+			break;
+		case R.id.button9:
+			placeNumber(9);
+			break;
+		}
+	}
+
+	private void placeNumber(int num) {
+		boolean flag = false;
+		if (fingerX != -1 && fingerY != -1) {
+			for (int i = 0; i < 9; i++) {
+				for (int j = 0; j < 9; j++) {
+					if (fingerX < (float) size.x / 9 * (i + 1)
+							&& fingerX > (float) size.x / 9 * i
+							&& fingerY > (float) size.x / 9 * j
+							&& fingerY < (float) size.x / 9 * (j + 1)) {
+						// Disable set Cell Value for fixed cells
+						boolean innerFlag = false;
+						for (int k = 0; k <fixedCells.size(); k++){
+							if (fixedCells.get(k).getFirst() == j && fixedCells.get(k).getSecond() == i){
+								innerFlag = true;
+								break;
 							}
-							
+						}
+						
+						if (innerFlag){
 							flag = true;
 							break;
 						}
-					}
-					if (flag) {
+						
+						Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>> result = sudokuBoardObject.setCellValue(j, i, num);
+						if(result.getFirst() == SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS){
+							violatedCell.setFirst(-1);
+							violatedCell.setSecond(-1);
+						} else {
+							violatedCell.setFirst(result.getSecond().getFirst());
+							violatedCell.setSecond(result.getSecond().getSecond());
+						}
+						
+						flag = true;
 						break;
 					}
 				}
+				if (flag) {
+					break;
+				}
 			}
-			break;
 		}
 	}
 
