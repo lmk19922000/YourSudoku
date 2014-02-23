@@ -283,7 +283,6 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 
 	@Override
 	public void onClick(View v) {
-		// TODO Auto-generated method stub
 		switch (v.getId()) {
 		case R.id.button1:
 			boolean flag = false;
@@ -294,32 +293,19 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 								&& fingerX > (float) size.x / 9 * i
 								&& fingerY > (float) size.x / 9 * j
 								&& fingerY < (float) size.x / 9 * (j + 1)) {
-							Pair<SudokuBoard.PLACE_NUMBER_STATUS, Integer> result = sudokuBoardObject.setCellValue(j, i, 1);
+							Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>> result = sudokuBoardObject.setCellValue(j, i, 1);
 							if(result.getFirst() == SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS){
 								violatedCell.setFirst(-1);
 								violatedCell.setSecond(-1);
 							} else if(result.getFirst() == SudokuBoard.PLACE_NUMBER_STATUS.ROW_CONFLICT){
-								for (int k = 0; k < 9; k++){
-									if (sudokuBoardObject.getCellValue(result.getSecond(), k) == 1){
-										violatedCell.setFirst(result.getSecond());
-										violatedCell.setSecond(k);
-									}
-								}
+								violatedCell.setFirst(result.getSecond().getFirst());
+								violatedCell.setSecond(result.getSecond().getSecond());
 							} else if(result.getFirst() == SudokuBoard.PLACE_NUMBER_STATUS.COL_CONFLICT){
-								for (int k = 0; k < 9; k++){
-									if (sudokuBoardObject.getCellValue(k, result.getSecond()) == 1){
-										violatedCell.setFirst(k);
-										violatedCell.setSecond(result.getSecond());
-									}
-								}
+								violatedCell.setFirst(result.getSecond().getFirst());
+								violatedCell.setSecond(result.getSecond().getSecond());
 							} else if(result.getFirst() == SudokuBoard.PLACE_NUMBER_STATUS.SUB_SQUARE_CONFLICT){
-								// TODO
-								for (int k = 0; k < 9; k++){
-									if (sudokuBoardObject.getCellValue(k, result.getSecond()) == 1){
-										violatedCell.setFirst(k);
-										violatedCell.setSecond(result.getSecond());
-									}
-								}
+								violatedCell.setFirst(result.getSecond().getFirst());
+								violatedCell.setSecond(result.getSecond().getSecond());
 							}
 							
 							flag = true;
