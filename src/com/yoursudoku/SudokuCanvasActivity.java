@@ -278,7 +278,6 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 
 	@Override
 	public boolean onTouch(View arg0, MotionEvent event) {
-		// TODO Auto-generated method stub
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
 			// Get the current position of the finger

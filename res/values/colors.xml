@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="cyan">#00ffff</color>
+    <color name="orange">#ff4500</color>
+    <color name="pink">#ffc0cb</color>
     
 </resources>
