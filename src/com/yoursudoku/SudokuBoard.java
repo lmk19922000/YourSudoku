@@ -396,8 +396,9 @@ public class SudokuBoard {
 		if (placeResult.getFirst() != SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS)
 			return placeResult;
 		
-		if (!isEmptyCell(row, col))
+		if (!isEmptyCell(row, col)) {
 			unsetCellValue(row, col);
+		}
 		
 		numEmpty--;
 		boardData[row][col] = value;

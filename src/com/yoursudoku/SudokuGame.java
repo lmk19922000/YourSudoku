@@ -87,25 +87,88 @@ public class SudokuGame {
 	 * 
 	 * @param row
 	 * @param col
+	 * @return
+	 */
+	public Integer getCellValue(int row, int col) {
+		return this.gameBoard.getCellValue(row, col);
+	}
+	
+	/** 
+	 * 
+	 * @param row
+	 * @param col
+	 * @param value
+	 * @return
+	 */
+	public Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>> setCellValue(int row, int col, int value) {
+		// Set the value in the Sudoku board
+		Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>> setStatus = this.gameBoard.setCellValue(row, col, value);
+		
+		if (setStatus.getFirst() != SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS) {
+			return setStatus;
+		}
+		
+		// Clear the draft list
+		this.clearCellDraft(row, col);
+		
+		return new Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>>(
+				   SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS, new Pair<Integer, Integer>(row, col)); 
+	}
+	
+	/**
+	 * 
+	 * @param row
+	 * @param col
+	 */
+	public void unsetCellValue(int row, int col) {
+		this.gameBoard.unsetCellValue(row, col);
+	}
+	
+	/**
+	 * Unsets cell value and clears cell draft list
+	 * 
+	 * @param row
+	 * @param col
+	 */
+	public void clearCell(int row, int col) {
+		this.unsetCellValue(row, col);
+		this.clearCellDraft(row, col);
+	}
+	
+	/**
+	 * 
+	 * @param row
+	 * @param col
 	 * @param draftNum
 	 * @return
 	 */
 	public Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>> addDraftNumber(int row, int col, int draftNum) {
 		Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>> placeStatus = 
 				gameBoard.canSetValue(row, col, draftNum);
-		if (placeStatus.getFirst() != SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS)
+		if (placeStatus.getFirst() != SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS) {
 			return placeStatus;
-		
-		if (draftBoard.get(row).get(col).contains(draftNum))
-			return placeStatus;
-		
-		if (draftBoard.get(row).get(col).size() == 0) {
-			gameBoard.setCellValue(row, col, draftNum);
-		} else {
-			if (draftBoard.get(row).get(col).size() == 1)
-				gameBoard.unsetCellValue(row, col);
 		}
-		draftBoard.get(row).get(col).add(draftNum);
+		
+		if (draftBoard.get(row).get(col).size() > 0) {
+			// The draft list is non-empty. So add the new draft number if it does not exist yet
+			if (!draftBoard.get(row).get(col).contains(draftNum)) {
+				draftBoard.get(row).get(col).add(draftNum);
+			}
+		} else {
+			// Draft list is empty. Check if the cell is empty as well
+			if (this.gameBoard.isEmptyCell(row, col)) {
+				// This cell is empty. So set the first draft number to be its value
+				this.setCellValue(row, col, draftNum);
+			} else {
+				if (this.getCellValue(row, col) != draftNum) {
+					// There are 2 draft numbers. Unset the cell value. Add two values to draft list
+					Integer oldCellValue = this.getCellValue(row, col);
+					this.unsetCellValue(row, col);
+					draftBoard.get(row).get(col).add(draftNum);
+					draftBoard.get(row).get(col).add(oldCellValue);
+				}
+			}
+		}
 		
 		return placeStatus;
 	}
@@ -127,14 +190,23 @@ public class SudokuGame {
 		if (col >= gameBoard.getBoardSize())
 			throw new IndexOutOfBoundsException("Column index exceeds board size");
 		
-		if (draftNum <= 0 || draftNum > gameBoard.getBoardSize())
+		if (draftNum <= 0 || draftNum > gameBoard.getBoardSize()) {
 			return;
-		if (!draftBoard.get(row).get(col).contains(draftNum))
+		}
+		
+		// Check if this is the first draft number
+		if (draftBoard.get(row).get(col).size() == 0 &&
+			this.getCellValue(row, col) == draftNum) {
+			// Unset the cell value
+			this.unsetCellValue(row, col);
 			return;
+		}
+		
+		if (!draftBoard.get(row).get(col).contains(draftNum)) {
+			return;
+		}
 		
 		// draftNum is in the draft list for this cell
-		if (draftBoard.get(row).get(col).size() == 1)
-			gameBoard.unsetCellValue(row, col);
 		draftBoard.get(row).get(col).remove(draftNum);
 	}
 	
