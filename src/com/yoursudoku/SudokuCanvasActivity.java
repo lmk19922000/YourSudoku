@@ -31,7 +31,7 @@ import android.widget.ToggleButton;
 public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 		OnClickListener {
 	SudokuGame sudokuGameObject;
-	SudokuBoard sudokuBoardObject;
+	//SudokuBoard sudokuBoardObject;
 
 	Stack<Command> commandHistory; 				// Support undo action
 
@@ -131,14 +131,14 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 				{ 0, 0, 8, 0, 3, 0, 2, 0, 7 }, { 6, 0, 0, 1, 0, 0, 8, 9, 0 } };
 
 		sudokuGameObject = new SudokuGame(sudokuInput);
-		sudokuBoardObject = sudokuGameObject.getSudokuBoard();
+		//sudokuBoardObject = sudokuGameObject.getSudokuBoard();
 		
 		// Get the list of fixed input
 		fixedCells = new Vector<Pair<Integer, Integer>>();
 		
 		for (int i = 0; i <9; i++){
 			for (int j = 0; j <9; j++){
-				if (sudokuBoardObject.getCellValue(i, j) != 0){
+				if (sudokuGameObject.getCellValue(i, j) != 0){
 					fixedCells.add(new Pair<Integer, Integer>(i,j));
 				}
 			}
@@ -162,7 +162,7 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 	public class SudokuCanvasView extends View {
 
 		private Paint normalGridPaint, thickGridPaint, numberPaint,
-				fixedCellPaint, highlightPaint, violatedPaint;
+				fixedCellPaint, highlightPaint, violatedPaint, smallNumberPaint;
 
 		public SudokuCanvasView(Context context) {
 			super(context);
@@ -192,13 +192,18 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 			violatedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 			violatedPaint.setStyle(Paint.Style.FILL);
 			violatedPaint.setColor(Color.RED);
+			
+			smallNumberPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+			smallNumberPaint.setStyle(Paint.Style.FILL);
+			smallNumberPaint.setColor(Color.GREEN);
+			smallNumberPaint.setTextSize(20);
 		}
 
 		@Override
 		protected void onDraw(Canvas canvas) {
 			super.onDraw(canvas);
 
-			float X, Y;
+			float X, Y, x, y;
 
 			canvas.drawColor(Color.WHITE);
 
@@ -280,9 +285,20 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 							.getWidth() / 9 * (j + 1)) / 2;
 					// Need to reposition the coordinates to draw the number to
 					// make it centralized
-					if (sudokuBoardObject.getCellValue(i, j) != 0){
-						canvas.drawText(String.valueOf(sudokuBoardObject.getCellValue(i, j)), X - 18,
+					if (sudokuGameObject.getCellValue(i, j) != 0){
+						canvas.drawText(String.valueOf(sudokuGameObject.getCellValue(i, j)), X - 18,
 								Y + 25, numberPaint);
+					} else if (!sudokuGameObject.getCellDraftList(i, j).isEmpty()){
+						for (int k = 0; k <=sudokuGameObject.getCellDraftList(i, j).size()/3; k++){
+							y = ((float) canvas.getHeight() / 9 * (i+1) - (float) canvas
+									.getHeight() / 9 * i) / 3 * (k+1) + (float) canvas.getHeight() / 9 * i;
+							for (int l = 0; l <sudokuGameObject.getCellDraftList(i, j).size()-k*3 && l < 3; l++){
+								x = ((float) canvas.getWidth() / 9 * (j+1) - (float) canvas
+										.getWidth() / 9 * j) / 3 * (l+1) + (float) canvas.getWidth() / 9 * j;
+								canvas.drawText(String.valueOf(sudokuGameObject.getCellDraftList(i, j).get(k*3+l)), x - 18,
+										y, smallNumberPaint);
+							}
+						}
 					}
 				}
 			}
@@ -343,8 +359,10 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 		case R.id.buttonDraft:
 			if (btnDraft.isChecked()){
 				inDraftMode = true;
+				Log.i("draft mode", "on");
 			} else{
 				inDraftMode = false;
+				Log.i("draft mode", "off");
 			}
 			break;
 		case R.id.buttonUndo:
@@ -380,7 +398,9 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 						}
 						
 						if (!inDraftMode){
-							Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>> result = sudokuBoardObject.setCellValue(j, i, num);
+							Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>> result = sudokuGameObject.setCellValue(j, i, num);
+							Log.i("cell value", String.valueOf(sudokuGameObject.getCellValue(j, i)));
+							Log.i("size of draft list", String.valueOf(sudokuGameObject.getCellDraftList(j, i).size()));
 							if(result.getFirst() == SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS){
 								violatedCell.setFirst(-1);
 								violatedCell.setSecond(-1);
@@ -390,6 +410,8 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 							}
 						} else{
 							Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>> result = sudokuGameObject.addDraftNumber(j, i, num);
+							Log.i("cell value", String.valueOf(sudokuGameObject.getCellValue(j, i)));
+							Log.i("size of draft list", String.valueOf(sudokuGameObject.getCellDraftList(j, i).size()));
 							if(result.getFirst() == SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS){
 								violatedCell.setFirst(-1);
 								violatedCell.setSecond(-1);

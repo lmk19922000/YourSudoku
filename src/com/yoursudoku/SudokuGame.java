@@ -3,6 +3,8 @@ package com.yoursudoku;
 import java.util.List;
 import java.util.Vector;
 
+import android.util.Log;
+
 /**
  * Implements a class representing a Sudoku Game
  * 
@@ -165,6 +167,7 @@ public class SudokuGame {
 					Integer oldCellValue = this.getCellValue(row, col);
 					this.unsetCellValue(row, col);
 					draftBoard.get(row).get(col).add(draftNum);
+					Log.i("add draft", "dkm");
 					draftBoard.get(row).get(col).add(oldCellValue);
 				}
 			}
