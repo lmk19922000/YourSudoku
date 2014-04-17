@@ -369,7 +369,7 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 			
 			break;
 		case R.id.buttonClear:
-			
+			placeNumber(0);
 			break;
 		}
 	}
@@ -393,6 +393,12 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 						}
 						
 						if (innerFlag){
+							flag = true;
+							break;
+						}
+						
+						if (num == 0){
+							sudokuGameObject.clearCell(j, i);
 							flag = true;
 							break;
 						}
