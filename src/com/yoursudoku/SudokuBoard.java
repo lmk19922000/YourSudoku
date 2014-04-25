@@ -443,5 +443,39 @@ public class SudokuBoard {
 		int colGroupInd = col / subBoardSize;
 		int numSubBoardPerRow = subBoardSize;
 		return rowGroupInd * numSubBoardPerRow + colGroupInd;
-	}	
+	}
+	
+	/**
+	 * Solves the sudoku board and returns the result
+	 * @return
+	 */
+	public SudokuBoard getSolvedSudokuBoard() {
+		if (this.boardSize != 9) {
+			return null;
+		}
+		
+		int boardData[][] = new int[9][9];
+		for (int row = 0; row < 9; row++) {
+			for (int col = 0; col < 9; col++) {
+				if (this.isEmptyCell(row, col)) {
+					boardData[row][col] = 0;
+				} else {
+					boardData[row][col] = this.getCellValue(row, col);
+				}
+			}
+		}
+		
+		boolean isSolvable = SudokuSolver.solveSudoku(boardData);
+		if (!isSolvable) {
+			return null;
+		}
+		
+		Integer solvedBoardData[][] = new Integer[9][9];
+		for (int row = 0; row < 9; row++) {
+			for (int col = 0; col < 9; col++) {
+				solvedBoardData[row][col] = boardData[row][col];
+			}
+		}
+		return new SudokuBoard(solvedBoardData);
+	}
 }
