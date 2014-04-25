@@ -23,6 +23,12 @@ public class SudokuGame {
 		this(new SudokuBoard());
 	}
 	
+	public SudokuGame(SudokuBoard sudokuBoard, Vector<Vector<Vector<Integer>>> draftBoardInput) {
+		gameBoard = new SudokuBoard(sudokuBoard);
+		
+		draftBoard = draftBoardInput;
+	}
+	
 	/**
 	 * 
 	 * @param gameBoard
@@ -32,6 +38,29 @@ public class SudokuGame {
 		createEmptyDraftBoard();
 	}
 	
+	public Vector<Vector<Vector<Integer>>> copyDraftBoard(Vector<Vector<Vector<Integer>>> inputDraft) {
+		Vector<Vector<Vector<Integer>>> outputDraft = new Vector<Vector<Vector<Integer>>>();
+		
+		for (int r = 0; r < inputDraft.size(); r++) {
+			Vector<Vector<Integer>> newRow = new Vector<Vector<Integer>>();
+			Vector<Vector<Integer>> oldRow = inputDraft.get(r);
+			
+			for (int c = 0; c < oldRow.size(); c++) {
+				Vector<Integer> newCell = new Vector<Integer>();
+				Vector<Integer> oldCell = oldRow.get(c);
+				
+				for (int d = 0; d < oldCell.size(); d++) {
+					newCell.add(oldCell.get(d));
+				}
+				
+				newRow.add(newCell);
+			}
+			
+			outputDraft.add(newRow);
+		}
+		
+		return outputDraft;
+	}
 	/**
 	 * 
 	 * @param boardData

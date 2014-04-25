@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
-import com.yoursudoku.command.Command;
 import com.yoursudoku.database.Database;
 
 import android.annotation.SuppressLint;
@@ -31,9 +30,8 @@ import android.widget.ToggleButton;
 public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 		OnClickListener {
 	SudokuGame sudokuGameObject;
-	//SudokuBoard sudokuBoardObject;
 
-	Stack<Command> commandHistory; 				// Support undo action
+	Stack<SudokuGame> commandStack; 			// Support undo action
 
 	Point size; 								// Size of the sudoku board (in terms of phone screen)
 
@@ -148,7 +146,7 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 		
 		fingerX = fingerY = -1;
 
-		commandHistory = new Stack<Command>();
+		commandStack = new Stack<SudokuGame>();
 
 		// Get size of the screen to decide size of the canvas
 		Display display = getWindowManager().getDefaultDisplay();
@@ -366,7 +364,10 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 			}
 			break;
 		case R.id.buttonUndo:
-			
+			if (!commandStack.isEmpty()){
+				SudokuGame prev = commandStack.pop();
+				sudokuGameObject = prev;
+			}
 			break;
 		case R.id.buttonClear:
 			placeNumber(0);
@@ -397,11 +398,16 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 							break;
 						}
 						
+						SudokuBoard oldSudokuBoard = new SudokuBoard(sudokuGameObject.getSudokuBoard());
+						Vector<Vector<Vector<Integer>>> oldDraftList = sudokuGameObject.copyDraftBoard(sudokuGameObject.draftBoard);
+						
 						if (num == 0){
 							sudokuGameObject.clearCell(j, i);
+							commandStack.push(new SudokuGame(oldSudokuBoard, oldDraftList));
 							flag = true;
 							break;
 						}
+						
 						
 						if (!inDraftMode){
 							Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>> result = sudokuGameObject.setCellValue(j, i, num);
@@ -410,6 +416,7 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 							if(result.getFirst() == SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS){
 								violatedCell.setFirst(-1);
 								violatedCell.setSecond(-1);
+								commandStack.push(new SudokuGame(oldSudokuBoard, oldDraftList));
 							} else {
 								violatedCell.setFirst(result.getSecond().getFirst());
 								violatedCell.setSecond(result.getSecond().getSecond());
@@ -421,6 +428,7 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 							if(result.getFirst() == SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS){
 								violatedCell.setFirst(-1);
 								violatedCell.setSecond(-1);
+								commandStack.push(new SudokuGame(oldSudokuBoard, oldDraftList));
 							} else {
 								violatedCell.setFirst(result.getSecond().getFirst());
 								violatedCell.setSecond(result.getSecond().getSecond());
