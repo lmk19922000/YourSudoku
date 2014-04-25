@@ -194,6 +194,8 @@ public class SudokuBoard {
 					boardData[row][col] = val;
 					int valInd = val - 1;
 					
+					numEmpty--;
+					
 					String colKey = COL_STR + Integer.toString(col);
 					int subBoardId = getSubBoardId(row, col);
 					String subSquareKey = SUB_SQUARE_STR + Integer.toString(subBoardId);

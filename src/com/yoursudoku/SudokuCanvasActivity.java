@@ -8,21 +8,30 @@ import com.yoursudoku.database.Database;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -47,7 +56,7 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 	Button btnUndo, btnClear;
 	ToggleButton btnDraft;
 	
-	boolean inDraftMode;
+	boolean inDraftMode, sudokuSolved;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +69,131 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 		addCanvasView();
 
 		initializeCompnentView();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    // Inflate the menu items for use in the action bar
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.sudoku_action, menu);
+	    return super.onCreateOptionsMenu(menu);
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle presses on the action bar items
+	    switch (item.getItemId()) {
+	        case R.id.action_hint:
+	            showHint();
+	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
+	}
+	
+	private void showHint() {
+		SudokuBoard solution = sudokuGameObject.getSudokuBoard().getSolvedSudokuBoard();
+		
+		boolean flag = false;
+		if (fingerX != -1 && fingerY != -1) {
+			for (int i = 0; i < 9; i++) {
+				for (int j = 0; j < 9; j++) {
+					if (fingerX < (float) size.x / 9 * (i + 1)
+							&& fingerX > (float) size.x / 9 * i
+							&& fingerY > (float) size.x / 9 * j
+							&& fingerY < (float) size.x / 9 * (j + 1)) {
+						// Disable set Cell Value for fixed cells
+						boolean innerFlag = false;
+						for (int k = 0; k <fixedCells.size(); k++){
+							if (fixedCells.get(k).getFirst() == j && fixedCells.get(k).getSecond() == i){
+								innerFlag = true;
+								break;
+							}
+						}
+						
+						if (innerFlag){
+							flag = true;
+							break;
+						}
+						
+						SudokuBoard oldSudokuBoard = new SudokuBoard(sudokuGameObject.getSudokuBoard());
+						Vector<Vector<Vector<Integer>>> oldDraftList = sudokuGameObject.copyDraftBoard(sudokuGameObject.draftBoard);
+						
+						Pair<SudokuBoard.PLACE_NUMBER_STATUS, Pair<Integer, Integer>> result = sudokuGameObject.setCellValue(j, i, solution.getCellValue(j, i));
+						Log.i("cell value", String.valueOf(sudokuGameObject.getCellValue(j, i)));
+						Log.i("size of draft list", String.valueOf(sudokuGameObject.getCellDraftList(j, i).size()));
+						if(result.getFirst() == SudokuBoard.PLACE_NUMBER_STATUS.SUCCESS){
+							violatedCell.setFirst(-1);
+							violatedCell.setSecond(-1);
+							commandStack.push(new SudokuGame(oldSudokuBoard, oldDraftList));
+							sudokuSolved = true;
+							for (int k = 0; k <9; k++){
+								for (int l = 0; l <9; l++){
+									if (sudokuGameObject.getCellValue(k, l) == 0){
+										sudokuSolved = false;
+										break;
+									}
+								}
+							}
+							if (sudokuSolved){
+								Log.i("SOLUTION STATUS", "SOLVED");
+								showFinishDialog();
+							}
+						} else {
+							violatedCell.setFirst(result.getSecond().getFirst());
+							violatedCell.setSecond(result.getSecond().getSecond());
+						}
+						
+						flag = true;
+						break;
+					}
+				}
+				if (flag) {
+					break;
+				}
+			}
+		}
+		
+	}
+
+	private void showFinishDialog() {
+		final Dialog dialog = new Dialog(this);
+		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		dialog.setContentView(R.layout.finish_dialog);
+
+		Button dialogButtonOK = (Button) dialog.findViewById(R.id.dialogButtonOK);
+		// if button is clicked, go to main menu the custom dialog
+		dialogButtonOK.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent myIntent = new Intent(SudokuCanvasActivity.this, HomeActivity.class);
+				startActivity(myIntent);
+			}
+		});
+
+		Button dialogButtonShare = (Button) dialog.findViewById(R.id.dialogButtonShare);
+		// if button is clicked, go to main menu the custom dialog
+		dialogButtonShare.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent sendIntent = new Intent();
+				sendIntent.setAction(Intent.ACTION_SEND);
+				sendIntent.putExtra(Intent.EXTRA_TEXT, "I am just solved a puzzle on Your Sudoku!");
+				sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Your Sudoku Score");
+				sendIntent.setType("text/plain");
+				startActivity(Intent.createChooser(sendIntent, "Share with your friends"));
+			}
+		});
+		
+		WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+		lp.copyFrom(dialog.getWindow().getAttributes());
+		lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+		lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+
+		dialog.show();
+
+		dialog.getWindow().setAttributes(lp);
+		
 	}
 
 	private void initializeCompnentView() {
@@ -121,12 +255,11 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 
 	@SuppressLint("NewApi")
 	private void initializeVariables() {
-		// TODO: Load this input from database
-		sudokuInput = new Integer[][] { { 0, 7, 9, 0, 0, 4, 0, 0, 1 },
-				{ 3, 0, 2, 0, 1, 0, 9, 0, 0 }, { 0, 0, 0, 7, 6, 0, 0, 0, 0 },
-				{ 0, 3, 0, 2, 0, 0, 0, 0, 9 }, { 8, 0, 4, 0, 0, 0, 3, 0, 5 },
-				{ 9, 0, 0, 0, 0, 3, 0, 1, 0 }, { 0, 0, 0, 0, 7, 5, 0, 0, 0 },
-				{ 0, 0, 8, 0, 3, 0, 2, 0, 7 }, { 6, 0, 0, 1, 0, 0, 8, 9, 0 } };
+		sudokuInput = new Integer[][] { { 5, 7, 9, 0, 2, 4, 0, 0, 1 },
+				{ 3, 0, 2, 0, 1, 0, 9, 7, 0 }, { 0, 0, 0, 7, 6, 0, 0, 0, 2 },
+				{ 7, 3, 0, 2, 0, 1, 0, 6, 9 }, { 8, 0, 4, 0, 9, 0, 3, 0, 5 },
+				{ 9, 0, 0, 0, 0, 3, 0, 1, 0 }, { 0, 9, 0, 0, 7, 5, 0, 4, 0 },
+				{ 0, 0, 8, 0, 3, 0, 2, 0, 7 }, { 6, 0, 0, 1, 0, 2, 8, 9, 0 } };
 
 		sudokuGameObject = new SudokuGame(sudokuInput);
 		//sudokuBoardObject = sudokuGameObject.getSudokuBoard();
@@ -154,6 +287,7 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 		display.getSize(size);
 		
 		inDraftMode = false;
+		sudokuSolved = false;
 	}
 
 	// View class to display sudoku
@@ -417,6 +551,9 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 								violatedCell.setFirst(-1);
 								violatedCell.setSecond(-1);
 								commandStack.push(new SudokuGame(oldSudokuBoard, oldDraftList));
+								if (sudokuGameObject.isSolved()){
+									showFinishDialog();
+								}
 							} else {
 								violatedCell.setFirst(result.getSecond().getFirst());
 								violatedCell.setSecond(result.getSecond().getSecond());
@@ -429,6 +566,9 @@ public class SudokuCanvasActivity extends Activity implements OnTouchListener,
 								violatedCell.setFirst(-1);
 								violatedCell.setSecond(-1);
 								commandStack.push(new SudokuGame(oldSudokuBoard, oldDraftList));
+								if (sudokuGameObject.isSolved()){
+									showFinishDialog();
+								}
 							} else {
 								violatedCell.setFirst(result.getSecond().getFirst());
 								violatedCell.setSecond(result.getSecond().getSecond());
