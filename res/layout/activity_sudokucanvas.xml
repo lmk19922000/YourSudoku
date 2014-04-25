@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/pink" >
+    android:background="@drawable/gradient_background2" >
 
     <TextView
         android:id="@+id/textView1"
@@ -22,7 +22,8 @@
         android:layout_height="45dp"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/button5"
-        android:text="@string/num7" />
+        android:text="@string/num7"
+         />
 
     <Button
         android:id="@+id/button4"
@@ -114,6 +115,7 @@
         android:layout_height="45dp"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/buttonUndo"
-        android:text="@string/clear" />
+        android:text="@string/clear"
+         />
     
 </RelativeLayout>
